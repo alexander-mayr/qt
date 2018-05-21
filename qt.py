@@ -350,7 +350,6 @@ class TetrisApp(object):
 
 			fps = dont_burn_my_cpu.get_fps()
 
-			print("FPS: ", fps)
 
 			if(fps > 0 and myclock.get_time() >= maxfps/fps):
 				self.drop(False)
@@ -390,7 +389,6 @@ if __name__ == '__main__':
 		App = TetrisApp(show)
 		score, state, board_value = App.run(ai_agent)
 		score_str = "#" + str(i) + " ened with board value " + str(board_value) + " [Score: " + str(score) + "]"
-		print("")
 
 		if(show):
 			print(score_str)
@@ -406,5 +404,4 @@ if __name__ == '__main__':
 		ai_agent.games_played += 1
 
 		if(args.knowledge_file):
-			print("save knowledge")
 			ai_agent.save_knowledge(i)
