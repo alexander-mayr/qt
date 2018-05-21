@@ -348,8 +348,11 @@ class TetrisApp(object):
 			elif(action == 4):
 				self.insta_drop()
 
-			print("fps: ", dont_burn_my_cpu.get_fps())
-			if(myclock.get_time() >= maxfps/dont_burn_my_cpu.get_fps()):
+			fps = dont_burn_my_cpu.get_fps()
+
+			print("FPS: ", fps)
+
+			if(fps > 0 and myclock.get_time() >= maxfps/fps):
 				self.drop(False)
 				myclock.tick()
 
