@@ -303,6 +303,8 @@ class TetrisApp(object):
 		self.paused = False
 
 		dont_burn_my_cpu = pygame.time.Clock()
+		myclock = pygame.time.Clock()
+
 		while 1:
 			if(self.show):
 				self.screen.fill((0,0,0))
