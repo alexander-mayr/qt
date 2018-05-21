@@ -148,10 +148,10 @@ class TetrisApp(object):
 		
 		if(self.show):
 			self.screen = pygame.display.set_mode((self.width, self.height))
-		pygame.event.set_blocked(pygame.MOUSEMOTION) # We do not need
-		                                             # mouse movement
-		                                             # events, so we
-		                                             # block them.
+			pygame.event.set_blocked(pygame.MOUSEMOTION) # We do not need
+		    	                                         # mouse movement
+		        	                                     # events, so we
+		            	                                 # block them.
 		self.next_stone = tetris_shapes[rand(len(tetris_shapes))]
 		self.init_game()
 	
