@@ -68,7 +68,7 @@ class AI():
 		pprint(print_state, file)
 
 	def get_best_action(self, state):
-		state_hash = self.get_state_md5(state)
+		state_hash = self.get_state_key(state)
 
 		if(state_hash not in self.q_matrix.keys()):
 			self.initialize_state(state_hash)
@@ -94,13 +94,12 @@ class AI():
 		
 		return state
 
-	def get_state_md5(self, state):
+	def get_state_key(self, state):
 		return str(state)
-		# return hashlib.md5(str(state).encode("utf-8")).hexdigest()
 
 	def update_q_matrix(self, new_state, old_state, action_taken, score, frames):
-		old_state_hash = self.get_state_md5(old_state)
-		new_state_hash = self.get_state_md5(new_state)
+		old_state_hash = self.get_state_key(old_state)
+		new_state_hash = self.get_state_key(new_state)
 
 		if(old_state_hash not in self.q_matrix.keys()):
 			self.initialize_state(old_state_hash)

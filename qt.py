@@ -164,7 +164,6 @@ class TetrisApp(object):
 		if check_collision(self.board,
 		                   self.stone,
 		                   (self.stone_x, self.stone_y)):
-			self.frames_until_col = 0
 			self.gameover = True
 	
 	def init_game(self):
@@ -250,7 +249,6 @@ class TetrisApp(object):
 			if check_collision(self.board,
 			                   self.stone,
 			                   (self.stone_x, self.stone_y)):
-				self.frames_until_col = 0
 				self.board = join_matrixes(
 				  self.board,
 				  self.stone,
@@ -260,7 +258,6 @@ class TetrisApp(object):
 				while True:
 					for i, row in enumerate(self.board[:-1]):
 						if 0 not in row:
-							print("CLEAR")
 							self.board = remove_row(
 							  self.board, i)
 							cleared_rows += 1
@@ -312,28 +309,18 @@ class TetrisApp(object):
 			if self.gameover:
 				state = ai_agent.get_state(self)
 				return self.score, state, ai_agent.get_state_value(state)
-				#self.center_msg("""Game Over!\nYour score: %d Press space to continue""" % self.score)
 			else:
 				if(self.show):
-					pygame.draw.line(self.screen,
-						(255,255,255),
-						(self.rlim+1, 0),
-						(self.rlim+1, self.height-1))
-					self.disp_msg("Next:", (
-						self.rlim+cell_size,
-						2))
-					self.disp_msg("Score: %d\n\nLevel: %d\\nLines: %d" % (self.score, self.level, self.lines),
-						(self.rlim+cell_size, cell_size*5))
+					pygame.draw.line(self.screen, (255,255,255), (self.rlim+1, 0),(self.rlim+1, self.height-1))
+					self.disp_msg("Next:", (self.rlim+cell_size, 2))
+					self.disp_msg("Score: %d\n\nLevel: %d\\nLines: %d" % (self.score, self.level, self.lines), (self.rlim+cell_size, cell_size*5))
 					self.draw_matrix(self.bground_grid, (0,0))
 					self.draw_matrix(self.board, (0,0))
-					self.draw_matrix(self.stone,
-						(self.stone_x, self.stone_y))
-					self.draw_matrix(self.next_stone,
-						(cols+1,2))
+					self.draw_matrix(self.stone, (self.stone_x, self.stone_y))
+					self.draw_matrix(self.next_stone, (cols+1,2))
 
 					pygame.display.update()
 
-			if(self.show):
 				for event in pygame.event.get():
 					if event.type == pygame.USEREVENT+1:
 						self.drop(False)
@@ -378,8 +365,8 @@ class TetrisApp(object):
 			# ai_agent.print_state(new_state)
 			# print(pygame.time.get_ticks() % 1000)
 
-			# if(self.show):
-			dont_burn_my_cpu.tick(maxfps)
+			if(self.show):
+				dont_burn_my_cpu.tick(maxfps)
 
 			j = j + 1
 
