@@ -388,7 +388,7 @@ if __name__ == '__main__':
 	while(True):
 		App = TetrisApp(show)
 		score, state, board_value = App.run(ai_agent)
-		score_str = "#" + str(ai_agent.games_played + i) + " ened with board value " + str(board_value) + " [Score: " + str(score) + "]"
+		score_str = "#" + str(ai_agent.games_played) + " ened with board value " + str(board_value) + " [Score: " + str(score) + "]"
 
 		if(show):
 			print(score_str)
@@ -398,8 +398,6 @@ if __name__ == '__main__':
 			ai_agent.print_state(state, file)
 			file.write("\n\n")
 			file.close()
-
-		i+=1
 
 		ai_agent.games_played += 1
 
