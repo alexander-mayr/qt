@@ -404,4 +404,4 @@ if __name__ == '__main__':
 		ai_agent.games_played += 1
 
 		if(args.knowledge_file):
-			ai_agent.save_knowledge(i)
+			ai_agent.save_knowledge()
