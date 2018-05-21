@@ -349,6 +349,7 @@ class TetrisApp(object):
 			state = ai_agent.get_state(self)
 			ai_agent.print_state(state)
 			action = ai_agent.get_action(state)
+			print("action: ", action)
 
 			if(action == 0):
 				self.move(-1)
