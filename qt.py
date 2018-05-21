@@ -406,6 +406,8 @@ if __name__ == '__main__':
 
 		i+=1
 
+		ai_aigent.games_played += 1
+
 		if(i % 10 == 0 and args.knowledge_file):
 			print("save knowledge")
 			ai_agent.save_knowledge(i)
