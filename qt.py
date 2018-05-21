@@ -131,7 +131,10 @@ def new_board():
 class TetrisApp(object):
 	def __init__(self, show):
 		pygame.init()
-		pygame.key.set_repeat(250,25)
+
+		if(show):
+			pygame.key.set_repeat(250,25)
+
 		self.frames_until_col = 0
 		self.ticks_since_action = 0
 		self.width = cell_size*(cols+6)
