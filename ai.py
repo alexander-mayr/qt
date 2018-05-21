@@ -116,14 +116,11 @@ class AI():
 		self.q_matrix[old_state_hash][action_taken] = new_value
 
 	def calculate_reward(self, new_state, old_state):
-		# old_state = np.array(old_state)
+		print("calculate reward")
 		new_state = np.array(new_state)
-
-		#old_value = self.get_state_value(old_state)
 		new_value = self.get_state_value(new_state)
 
-		r = new_value # - old_value
-
+		print("reward is ", new_value)
 		return r
 
 	def get_state_value(self, state):
