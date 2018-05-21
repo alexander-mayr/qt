@@ -77,6 +77,7 @@ class AI():
 			x += "\n"
 
 		print(x)
+		print("________________________-")
 		window.addstr(0, 0, "game #" + str(self.games_played))
 		window.addstr(1, 0, "turn #" + str(turn))
 		window.addstr(2, 0, "reward: " + str(reward))
