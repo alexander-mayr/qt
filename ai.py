@@ -34,7 +34,7 @@ class AI():
 
 
 	def get_action(self, state):
-		if(np.random.randint(10) == 0) and False:
+		if(np.random.randint(10) == 0):
 			v = np.random.randint(4) 
 			return v
 		else:
