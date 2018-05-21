@@ -345,12 +345,8 @@ class TetrisApp(object):
 
 			#if not self.paused:
 
-			print("")
-			print("turn ", j)
 			state = ai_agent.get_state(self)
-			ai_agent.print_state(state)
 			action = ai_agent.get_action(state)
-			print("action: ", action)
 
 			if(action == 0):
 				self.move(-1)
@@ -363,9 +359,15 @@ class TetrisApp(object):
 			elif(action == 4):
 				self.insta_drop()
 
+
 			new_state = ai_agent.get_state(self)
 			self.frames_until_col += 1
 			ai_agent.update_q_matrix(new_state, state, action, self.score, self.frames_until_col)
+
+			print("game #", self.games_played + 1)
+			print("turn #", j)
+			print("action: ", action)
+			ai_agent.print_state(new_state)
 
 			# ai_agent.print_state(new_state)
 			# print(pygame.time.get_ticks() % 1000)
