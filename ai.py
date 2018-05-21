@@ -76,11 +76,10 @@ class AI():
 			x += " ".join(r)
 			x += "\n"
 
-		#x = "--------------------------"
-		#window.addstr(0, 0, "game #" + str(self.games_played))
-		#window.addstr(1, 0, "turn #" + str(turn))
-		#window.addstr(2, 0, "reward: " + str(reward))
-		window.addstr(0, 0, x)
+		window.addstr(0, 0, "game #" + str(self.games_played))
+		window.addstr(1, 0, "turn #" + str(turn))
+		window.addstr(2, 0, "reward: " + str(reward))
+		window.addstr(3, 0, x)
 		window.refresh()
  
 	def print_state(self, state, file = None):
