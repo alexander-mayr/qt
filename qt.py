@@ -330,16 +330,17 @@ class TetrisApp(object):
 
 					pygame.display.update()
 
-			for event in pygame.event.get():
-				if event.type == pygame.USEREVENT+1:
-					self.drop(False)
-				elif event.type == pygame.QUIT:
-					self.quit()
-				elif event.type == pygame.KEYDOWN:
-					for key in key_actions:
-						if event.key == eval("pygame.K_"
-						+key):
-							key_actions[key]()
+			if(self.show):
+				for event in pygame.event.get():
+					if event.type == pygame.USEREVENT+1:
+						self.drop(False)
+					elif event.type == pygame.QUIT:
+						self.quit()
+					elif event.type == pygame.KEYDOWN:
+						for key in key_actions:
+							if event.key == eval("pygame.K_"
+							+key):
+								key_actions[key]()
 
 			#if not self.paused:
 			
