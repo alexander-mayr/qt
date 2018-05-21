@@ -344,7 +344,7 @@ class TetrisApp(object):
 								key_actions[key]()
 
 			#if not self.paused:
-s
+
 			print("")
 			print("turn ", j)
 			state = ai_agent.get_state(self)
