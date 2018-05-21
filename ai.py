@@ -33,7 +33,7 @@ class AI():
 			self.games_played = 0
 			self.q_matrix = dict()
 
-		raise Exception
+		# raise Exception
 
 	def get_action(self, state):
 		if(np.random.randint(10) == 0):
@@ -43,9 +43,9 @@ class AI():
 			v = self.get_best_action(state)
 			return v
 
-	def save_knowledge(self, games_played):
+	def save_knowledge(self):
 		with open(self.knowledge_file, "wb") as file:
-			content = {"games_played": self.games_played + games_played, "q_matrix": self.q_matrix}
+			content = {"games_played": self.games_played, "q_matrix": self.q_matrix}
 			file.write(json_tricks.dumps(content, compression = True))
 
 	def print_state(self, state, file = None):
