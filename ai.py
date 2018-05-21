@@ -28,7 +28,7 @@ class AI():
 				data = json_tricks.loads(file.read(), decompression = True)
 				self.q_matrix = data["q_matrix"]
 				self.games_played = int(data["games_played"])
-				print("Loaded " + str(len(self.q_matrix.keys())) + " memories over" + str(self.games_played) + " games.")
+				print("Loaded " + str(len(self.q_matrix.keys())) + " memories over " + str(self.games_played) + " games.")
 		else:
 			self.games_played = 0
 			self.q_matrix = dict()
