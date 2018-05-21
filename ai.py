@@ -25,11 +25,12 @@ class AI():
 		if(knowledge_file and os.path.exists(knowledge_file) and os.path.getsize(knowledge_file) > 0):
 			with open(self.knowledge_file, "rb") as file:
 				print("Loading ", knowledge_file)
-				self.q_matrix = json_tricks.loads(file.read(), decompression = True)
-				print("Loaded " + str(len(self.q_matrix.keys())) + " memories")
-				self.obs_offset = len(self.q_matrix.keys())
+				data = json_tricks.loads(file.read(), decompression = True)
+				self.q_matrix = data["q_matrix"]
+				self.games_played = int(data["games_played"])
+				print("Loaded " + str(len(self.q_matrix.keys())) + " memories over" + str(self.games_played) + " games.")()
 		else:
-			self.obs_offset = 0
+			self.games_played = 0
 			self.q_matrix = dict()
 
 
@@ -41,10 +42,10 @@ class AI():
 			v = self.get_best_action(state)
 			return v
 
-	def save_knowledge(self):
+	def save_knowledge(self, games_played):
 		with open(self.knowledge_file, "wb") as file:
-			file.write(json_tricks.dumps(self.q_matrix, compression = True))
-			# pickle.dump(self.q_matrix, file)
+			content = {"games_played": self.games_played + games_played, "q_matrix": self.q_matrix}
+			file.write(json_tricks.dumps(content, compression = True))
 
 	def print_state(self, state, file = None):
 		print_state = []
@@ -102,7 +103,6 @@ class AI():
 		new_state_hash = self.get_state_md5(new_state)
 
 		if(old_state_hash not in self.q_matrix.keys()):
-			print("AAAAAAA")
 			self.initialize_state(old_state_hash)
 
 		old_value = self.q_matrix[old_state_hash][action_taken]
