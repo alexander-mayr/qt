@@ -359,9 +359,11 @@ class TetrisApp(object):
 			elif(action == 4):
 				self.insta_drop()
 
+			if(myclock.get_time() >= 1000):
+				self.drop(False)
+				myclock.tick()
 
 			new_state = ai_agent.get_state(self)
-			self.frames_until_col += 1
 
 			print("")
 			print("game #", ai_agent.games_played + 1)
