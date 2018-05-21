@@ -344,7 +344,7 @@ class TetrisApp(object):
 								key_actions[key]()
 
 			#if not self.paused:
-
+s
 			print("")
 			print("turn ", j)
 			state = ai_agent.get_state(self)
@@ -370,8 +370,8 @@ class TetrisApp(object):
 			# ai_agent.print_state(new_state)
 			# print(pygame.time.get_ticks() % 1000)
 
-			if(self.show):
-				dont_burn_my_cpu.tick(maxfps)
+			# if(self.show):
+			dont_burn_my_cpu.tick(maxfps)
 
 			j = j + 1
 
