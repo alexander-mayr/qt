@@ -33,7 +33,7 @@ class AI():
 			self.games_played = 0
 			self.q_matrix = dict()
 
-		raise Exception
+		# raise Exception
 
 	def get_action(self, state):
 		if(np.random.randint(10) == 0):
