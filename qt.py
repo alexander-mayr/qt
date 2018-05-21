@@ -41,7 +41,7 @@
 
 from random import randrange as rand
 import pygame, sys
-
+import curses
 import numpy as np
 import os
 
@@ -289,7 +289,7 @@ class TetrisApp(object):
 			self.init_game()
 			self.gameover = False
 	
-	def run(self, ai_agent):
+	def run(self, ai_agent, window):
 		j = 0
 		key_actions = {
 			'ESCAPE':	self.quit,
@@ -335,7 +335,8 @@ class TetrisApp(object):
 			#if not self.paused:
 
 			state = ai_agent.get_state(self)
-			action = ai_agent.get_action(state)
+			action, reward = ai_agent.get_action(state)
+
 
 			if(action == 0):
 				self.move(-1)
@@ -350,7 +351,6 @@ class TetrisApp(object):
 
 			fps = dont_burn_my_cpu.get_fps()
 
-
 			if(fps > 0 and myclock.get_time() >= maxfps/fps):
 				self.drop(False)
 				myclock.tick()
@@ -363,7 +363,9 @@ class TetrisApp(object):
 			#print("action: ", ai.ACTIONS[action])
 
 			ai_agent.update_q_matrix(new_state, state, action, self.score, self.frames_until_col)
-			ai_agent.print_state(new_state)
+			ai_agent.show_state(new_state, window, reward, j)
+
+			#ai_agent.print_state(new_state)
 
 			# ai_agent.print_state(new_state)
 			# print(pygame.time.get_ticks() % 1000)
@@ -379,6 +381,7 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 	ai_agent = ai.AI(args.knowledge_file)
 	i = 0
+	window = curses.initscr()
 
 	if("SHOW" in os.environ.keys()):
 		show = True
@@ -387,7 +390,7 @@ if __name__ == '__main__':
 
 	while(True):
 		App = TetrisApp(show)
-		score, state, board_value = App.run(ai_agent)
+		score, state, board_value = App.run(ai_agent, window)
 		score_str = "#" + str(ai_agent.games_played) + " ened with board value " + str(board_value) + " [Score: " + str(score) + "]"
 
 		if(show):

@@ -38,16 +38,50 @@ class AI():
 	def get_action(self, state):
 		if(np.random.randint(10) == 0):
 			v = np.random.randint(4) 
-			return v
+			return v, self.q_matrix[self.get_state_key(state)][v]
 		else:
-			v = self.get_best_action(state)
-			return v
+			return self.get_best_action(state)
+
+	def get_best_action(self, state):
+		state_hash = self.get_state_key(state)
+
+		if(state_hash not in self.q_matrix.keys()):
+			self.initialize_state(state_hash)
+
+		amax = np.argmax(self.q_matrix[state_hash])
+
+		return amax, self.q_matrix[state_hash][amax]
 
 	def save_knowledge(self):
 		with open(self.knowledge_file, "wb") as file:
 			content = {"games_played": self.games_played, "q_matrix": self.q_matrix}
 			file.write(json_tricks.dumps(content, compression = True))
 
+	def show_state(self, state, window, reward, turn):
+		x = ''
+
+		for row_i, row in enumerate(state):
+			r = []
+
+			for col_i, e in enumerate(row):
+				if(e == 1):
+					v = "X"
+				elif(e == -1):
+					v = "Y"
+				else:
+					v = " "
+
+				r.append(v)
+
+			x += " ".join(r)
+			x += "\n"
+
+		window.addstr(0, 0, "game #" + str(self.games_played))
+		window.addstr(1, 0, "turn #" + str(turn))
+		window.addstr(2, 0, "reward: " + str(reward))
+		window.addstr(3, 0, x)
+		window.refresh()
+ 
 	def print_state(self, state, file = None):
 		print_state = []
 
@@ -68,15 +102,6 @@ class AI():
 
 		pprint(print_state, file)
 
-	def get_best_action(self, state):
-		state_hash = self.get_state_key(state)
-
-		if(state_hash not in self.q_matrix.keys()):
-			self.initialize_state(state_hash)
-
-		amax = np.argmax(self.q_matrix[state_hash])
-
-		return amax
 
 	def initialize_state(self, state_hash):
 		self.q_matrix[state_hash] = [np.random.randint(10) for i in range(5)] 
@@ -107,19 +132,16 @@ class AI():
 		old_value = self.q_matrix[old_state_hash][action_taken]
 
 		reward = self.calculate_reward(new_state, old_state)
-		next_action = self.get_best_action(new_state)
-		next_reward = self.q_matrix[new_state_hash][next_action]
+		next_action, next_reward = self.get_best_action(new_state)
 
 		new_value = (1 - 0.2) * old_value + 0.2 * (reward + 0.8 * next_reward)
 
 		self.q_matrix[old_state_hash][action_taken] = new_value
 
 	def calculate_reward(self, new_state, old_state):
-		#print("calculate reward")
 		new_state = np.array(new_state)
 		new_value = self.get_state_value(new_state)
 
-		#print("reward is ", new_value)
 		return new_value
 
 	def get_state_value(self, state):
