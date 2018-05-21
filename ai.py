@@ -121,7 +121,7 @@ class AI():
 		new_value = self.get_state_value(new_state)
 
 		print("reward is ", new_value)
-		return r
+		return new_value
 
 	def get_state_value(self, state):
 		max_x = state.shape[1] - 1
