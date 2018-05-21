@@ -293,6 +293,7 @@ class TetrisApp(object):
 			self.gameover = False
 	
 	def run(self, ai_agent):
+		j = 0
 		key_actions = {
 			'ESCAPE':	self.quit,
 			'p':		self.toggle_pause
@@ -343,7 +344,9 @@ class TetrisApp(object):
 								key_actions[key]()
 
 			#if not self.paused:
-			
+
+			print("turn ", j)
+
 			state = ai_agent.get_state(self)
 			action = ai_agent.get_action(state)
 
@@ -368,6 +371,8 @@ class TetrisApp(object):
 			if(self.show):
 				dont_burn_my_cpu.tick(maxfps)
 
+			j = j + 1
+
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-f", help = "Knowledge File", dest = "knowledge_file")
@@ -384,6 +389,7 @@ if __name__ == '__main__':
 		App = TetrisApp(show)
 		score, state, board_value = App.run(ai_agent)
 		score_str = "#" + str(i) + " ened with board value " + str(board_value) + " [Score: " + str(score) + "]"
+		print("")
 
 		if(show):
 			print(score_str)
