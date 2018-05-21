@@ -66,7 +66,6 @@ class AI():
 
 			print_state.append(r)
 
-		print(len(print_state))
 		pprint(print_state, file)
 
 	def get_best_action(self, state):
