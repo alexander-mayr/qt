@@ -66,6 +66,7 @@ class AI():
 
 			print_state.append(r)
 
+		print(len(print_state))
 		pprint(print_state, file)
 
 	def get_best_action(self, state):
@@ -92,7 +93,6 @@ class AI():
 				if e != 0:
 					state[row_i + app.stone_y][col_i + app.stone_x] = -1
 
-		
 		return state
 
 	def get_state_key(self, state):
