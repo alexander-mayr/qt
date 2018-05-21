@@ -346,8 +346,8 @@ class TetrisApp(object):
 			#if not self.paused:
 
 			print("turn ", j)
-			ai_agent.print_state()
 			state = ai_agent.get_state(self)
+			ai_agent.print_state(state)
 			action = ai_agent.get_action(state)
 
 			if(action == 0):
