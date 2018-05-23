@@ -35,6 +35,14 @@ class AI():
 
 		# raise Exception
 
+	def get_state_actions(self, state):
+		state_key = self.get_state_key(new_state)
+
+		if(state_key not in self.q_matrix.keys()):
+			self.initialize_state(state_key)
+
+		return self.q_matrix[state_key]
+
 	def get_action(self, state):
 		if(np.random.randint(10) == 0):
 			v = np.random.randint(4) 
@@ -43,14 +51,10 @@ class AI():
 			return self.get_best_action(state)
 
 	def get_best_action(self, state):
-		state_hash = self.get_state_key(state)
+		actions = self.get_state_actions(state)
+		amax = np.argmax(actions)
 
-		if(state_hash not in self.q_matrix.keys()):
-			self.initialize_state(state_hash)
-
-		amax = np.argmax(self.q_matrix[state_hash])
-
-		return amax, self.q_matrix[state_hash][amax]
+		return amax, actions[amax]
 
 	def save_knowledge(self):
 		with open(self.knowledge_file, "wb") as file:
@@ -103,8 +107,8 @@ class AI():
 		pprint(print_state, file)
 
 
-	def initialize_state(self, state_hash):
-		self.q_matrix[state_hash] = [np.random.randint(10) for i in range(5)] 
+	def initialize_state(self, state_key):
+		self.q_matrix[state_key] = [np.random.randint(10) for i in range(5)] 
 
 	def get_state(self, app):
 		state = np.array(app.board)
@@ -123,20 +127,20 @@ class AI():
 		return str(state)
 
 	def update_q_matrix(self, new_state, old_state, action_taken, score, frames):
-		old_state_hash = self.get_state_key(old_state)
-		new_state_hash = self.get_state_key(new_state)
+		old_state_actions = self.get_state_actions(old_state)
+		new_state_actions = self.get_state_actions(new_state)
 
-		if(old_state_hash not in self.q_matrix.keys()):
-			self.initialize_state(old_state_hash)
+		#if(old_state_key not in self.q_matrix.keys()):
+		#	self.initialize_state(old_state)
 
-		old_value = self.q_matrix[old_state_hash][action_taken]
+		old_value = old_state_actions[action_taken]
 
 		reward = self.calculate_reward(new_state, old_state)
 		next_action, next_reward = self.get_best_action(new_state)
 
 		new_value = (1 - 0.2) * old_value + 0.2 * (reward + 0.8 * next_reward)
 
-		self.q_matrix[old_state_hash][action_taken] = new_value
+		self.q_matrix[old_state_key][action_taken] = new_value
 
 	def calculate_reward(self, new_state, old_state):
 		new_state = np.array(new_state)
@@ -148,12 +152,12 @@ class AI():
 		max_x = state.shape[1] - 1
 		max_y = state.shape[0] - 1
 
-		edges = 0
+		occupied = 0
 
 		for row_i, row in enumerate(state):
 			if(1 in row):
-				v = len([x for x in row if x == 0])
-				edges += v
+				v = len([x for x in row if x == 1])
+				occupied += v
 
 
-		return 1/edges if edges != 0 else 100
+		return occupied # if occupied != 0 else 100
