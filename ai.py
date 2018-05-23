@@ -163,6 +163,7 @@ class AI():
 			if(1 in row):
 				v = len([x for x in row if x == 1])
 				occupied += v
-
+			else:
+				occupied += 50
 
 		return occupied # if occupied != 0 else 100
