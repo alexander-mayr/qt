@@ -139,7 +139,7 @@ class AI():
 
 		old_value = old_state_actions[action_taken]
 
-		reward = self.calculate_reward(new_state, old_state)
+		reward = self.calculate_reward(new_state, old_state, old_value)
 		next_action, next_reward = self.get_best_action(new_state)
 
 		new_value = (1 - 0.2) * old_value + 0.2 * (reward + 0.8 * next_reward)
@@ -147,23 +147,22 @@ class AI():
 		self.update_entry(old_state, action_taken, new_value)
 		# self.q_matrix[old_state_key][action_taken] = new_value
 
-	def calculate_reward(self, new_state, old_state):
-		new_state = np.array(new_state)
+	def calculate_reward(self, new_state, old_state, old_value):
 		new_value = self.get_state_value(new_state)
 
-		return new_value
+		return new_value - old_value
 
 	def get_state_value(self, state):
 		max_x = state.shape[1] - 1
 		max_y = state.shape[0] - 1
 
-		occupied = 0
+		value = 0
 
 		for row_i, row in enumerate(state):
 			if(1 in row):
 				v = len([x for x in row if x == 1])
-				occupied += v
+				value += v
 			else:
-				occupied += 50
+				value += 50
 
-		return occupied # if occupied != 0 else 100
+		return value # if occupied != 0 else 100
