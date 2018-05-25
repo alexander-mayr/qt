@@ -335,7 +335,7 @@ class TetrisApp(object):
 			#if not self.paused:
 
 			state = ai_agent.get_state(self)
-			action, reward = ai_agent.get_action(state)
+			unknown, action, reward = ai_agent.get_action(state)
 
 
 			if(action == 0):
@@ -363,7 +363,7 @@ class TetrisApp(object):
 			#print("action: ", ai.ACTIONS[action])
 
 			ai_agent.update_q_matrix(new_state, state, action)
-			ai_agent.show_state(new_state, window, reward, j, self.score)
+			ai_agent.show_state(new_state, window, reward, j, self.score, unknown)
 
 			#ai_agent.print_state(new_state)
 
@@ -382,6 +382,9 @@ if __name__ == '__main__':
 	ai_agent = ai.AI(args.knowledge_file)
 	i = 0
 	window = curses.initscr()
+	curses.start_color()
+	curses.init_pair(1, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+	curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
 
 	if("SHOW" in os.environ.keys()):
 		show = True

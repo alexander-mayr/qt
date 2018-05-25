@@ -9,6 +9,7 @@ import hashlib
 
 import zlib
 import json_tricks
+import curses
 
 LEFT = 0
 RIGHT = 1
@@ -62,7 +63,7 @@ class AI():
 			content = {"games_played": self.games_played, "q_matrix": self.q_matrix}
 			file.write(json_tricks.dumps(content, compression = True))
 
-	def show_state(self, state, window, reward, turn, score):
+	def show_state(self, state, window, reward, turn, score, unknown):
 		x = ''
 
 		for row_i, row in enumerate(state):
@@ -81,11 +82,16 @@ class AI():
 			x += " ".join(r)
 			x += "\n"
 
+		if(unknown):
+			cp = curses.color_pair(1)
+		else:
+			cp = curses.color_pair(2)
+
 		window.addstr(0, 0, "game #" + str(self.games_played))
 		window.addstr(1, 0, "turn #" + str(turn))
 		window.addstr(2, 0, "reward: " + str(reward))
 		window.addstr(3, 0, "score: " + str(score))
-		window.addstr(4, 0, x)
+		window.addstr(4, 0, x, cp)
 		window.refresh()
  
 	def print_state(self, state, file = None):
@@ -143,7 +149,7 @@ class AI():
 		old_value = old_state_actions[action_taken]
 
 		reward = self.calculate_reward(new_state, old_state, old_value)
-		next_action, next_reward = self.get_best_action(new_state)
+		unknown, next_action, next_reward = self.get_best_action(new_state)
 
 		new_value = (1 - 0.2) * old_value + 0.2 * (reward + 0.8 * next_reward)
 
