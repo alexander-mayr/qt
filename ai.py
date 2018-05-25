@@ -40,17 +40,18 @@ class AI():
 		state_key = self.get_state_key(state)
 
 		if(state_key not in self.q_matrix.keys()):
-			return False, self.initialize_state(state_key)
+			return True, self.initialize_state(state_key)
 
-		return True, self.q_matrix[state_key]
+		return False, self.q_matrix[state_key]
 
 	def get_action(self, state):
-		if(np.random.randint(10) == 0):
-			v = np.random.randint(4)
-			unknown, actions = self.get_state_actions(state)
-			return unknown, v, actions[v]
-		else:
-			return self.get_best_action(state)
+		return self.get_best_action(state)
+		# if(np.random.randint(10) == 0):
+		# 	v = np.random.randint(4)
+		# 	unknown, actions = self.get_state_actions(state)
+		# 	return unknown, v, actions[v]
+		# else:
+		#	return self.get_best_action(state)
 
 	def get_best_action(self, state):
 		unknown, actions = self.get_state_actions(state)
