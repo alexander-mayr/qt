@@ -362,8 +362,8 @@ class TetrisApp(object):
 			#print("turn #", j)
 			#print("action: ", ai.ACTIONS[action])
 
-			ai_agent.update_q_matrix(new_state, state, action, self.score, self.frames_until_col)
-			ai_agent.show_state(new_state, window, reward, j)
+			ai_agent.update_q_matrix(new_state, state, action)
+			ai_agent.show_state(new_state, window, reward, j, self.score)
 
 			#ai_agent.print_state(new_state)
 
