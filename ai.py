@@ -131,7 +131,7 @@ class AI():
 		state_key = self.get_state_key(state)
 		self.q_matrix[state_key][action] = value
 
-	def update_q_matrix(self, new_state, old_state, action_taken, score, frames):
+	def update_q_matrix(self, new_state, old_state, action_taken):
 		old_state_actions = self.get_state_actions(old_state)
 		new_state_actions = self.get_state_actions(new_state)
 
