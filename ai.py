@@ -61,7 +61,7 @@ class AI():
 			content = {"games_played": self.games_played, "q_matrix": self.q_matrix}
 			file.write(json_tricks.dumps(content, compression = True))
 
-	def show_state(self, state, window, reward, turn):
+	def show_state(self, state, window, reward, turn, score):
 		x = ''
 
 		for row_i, row in enumerate(state):
@@ -83,7 +83,8 @@ class AI():
 		window.addstr(0, 0, "game #" + str(self.games_played))
 		window.addstr(1, 0, "turn #" + str(turn))
 		window.addstr(2, 0, "reward: " + str(reward))
-		window.addstr(3, 0, x)
+		window.addstr(3, 0, "score: " + str(score))
+		window.addstr(4, 0, x)
 		window.refresh()
  
 	def print_state(self, state, file = None):
