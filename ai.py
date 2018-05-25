@@ -39,22 +39,23 @@ class AI():
 		state_key = self.get_state_key(state)
 
 		if(state_key not in self.q_matrix.keys()):
-			self.initialize_state(state_key)
+			return False, self.initialize_state(state_key)
 
-		return self.q_matrix[state_key]
+		return True, self.q_matrix[state_key]
 
 	def get_action(self, state):
 		if(np.random.randint(10) == 0):
-			v = np.random.randint(4) 
-			return v, self.q_matrix[self.get_state_key(state)][v]
+			v = np.random.randint(4)
+			unknown, actions = self.get_state_actions(state)
+			return unknown, v, actions[v]
 		else:
 			return self.get_best_action(state)
 
 	def get_best_action(self, state):
-		actions = self.get_state_actions(state)
+		unknown, actions = self.get_state_actions(state)
 		amax = np.argmax(actions)
 
-		return amax, actions[amax]
+		return unknown, amax, actions[amax]
 
 	def save_knowledge(self):
 		with open(self.knowledge_file, "wb") as file:
@@ -109,7 +110,8 @@ class AI():
 
 
 	def initialize_state(self, state_key):
-		self.q_matrix[state_key] = [np.random.randint(10) for i in range(5)] 
+		self.q_matrix[state_key] = [np.random.randint(10) for i in range(5)]
+		return self.q_matrix[state_key]
 
 	def get_state(self, app):
 		state = np.array(app.board)
@@ -132,8 +134,8 @@ class AI():
 		self.q_matrix[state_key][action] = value
 
 	def update_q_matrix(self, new_state, old_state, action_taken):
-		old_state_actions = self.get_state_actions(old_state)
-		new_state_actions = self.get_state_actions(new_state)
+		unknown, old_state_actions = self.get_state_actions(old_state)
+		unknown, new_state_actions = self.get_state_actions(new_state)
 
 		#if(old_state_key not in self.q_matrix.keys()):
 		#	self.initialize_state(old_state)
