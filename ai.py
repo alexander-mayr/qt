@@ -34,12 +34,8 @@ class AI():
 				data = json_tricks.loads(file.read(), decompression = True)
 				self.q_matrix = data["q_matrix"]
 				self.games_played = int(data["games_played"])
-				loaded_em = data["experience_matrix"]
 
-				for i, e in enumerate(loaded_em):
-					self.experience_matrix[i] = e
-
-				print("Loaded " + str(len(self.q_matrix.keys())) + " memories over " + str(sum(self.experience_matrix)) + " experiences in " + str(self.games_played) + " games.")
+				print("Loaded " + str(len(self.q_matrix.keys())) + " memories over " + str(self.games_played) + " games.")
 		else:
 			self.games_played = 0
 			self.q_matrix = dict()
@@ -51,7 +47,7 @@ class AI():
 		if(state_key not in self.q_matrix.keys()):
 			self.initialize_state(state_key)
 
-		return self.q_matrix[state_key]
+		return self.q_matrix[state_key]["actions"]
 
 	def get_action(self, state):
 		actions = self.get_state_actions(state)
@@ -72,10 +68,8 @@ class AI():
 
 	def save_knowledge(self):
 		with open(self.knowledge_file, "wb") as file:
-			content = {"games_played": self.games_played, "q_matrix": self.q_matrix, "experience_matrix": self.experience_matrix }
+			content = {"games_played": self.games_played, "q_matrix": self.q_matrix, }
 			file.write(json_tricks.dumps(content, compression = True))
-
-		#np.savez(self.knowledge_file + "_experience.npz", "w", np.array(self.experience_matrix))
 
 	def show_state(self, state, old_state, window, reward, turn, score, fps):
 		x = ''
@@ -134,16 +128,16 @@ class AI():
 
 
 	def initialize_state(self, state_key):
-		self.q_matrix[state_key] = [np.random.randint(10) for i in range(5)]
+		self.q_matrix[state_key] = { "experienced": 0, "actions": [np.random.randint(10) for i in range(5)] }
 		return self.q_matrix[state_key]
 
 	def register_experience(self, state_key):
-		idx = list(self.q_matrix.keys()).index(state_key)
-		self.experience_matrix[idx] += 1
+		v = int(self.q_matrix[state_key]["experienced"])
+		self.q_matrix[state_key]["experienced"]= v + 1
+
 
 	def is_registered(self, state_key):
-		idx = list(self.q_matrix.keys()).index(state_key)
-		return self.experience_matrix[idx] > 0
+		return self.q_matrix[state_key]["experienced"] > 0
 
 	def get_state(self, app):
 		state = np.array(app.board)
@@ -163,7 +157,7 @@ class AI():
 
 	def update_entry(self, state, action, value):
 		state_key = self.get_state_key(state)
-		self.q_matrix[state_key][action] = value
+		self.q_matrix[state_key]["actions"][action] = value
 
 	def update_q_matrix(self, new_state, old_state, action_taken):
 		old_state_actions = self.get_state_actions(old_state)
@@ -177,7 +171,6 @@ class AI():
 		new_value = (1 - 0.2) * old_value + 0.2 * (reward + 0.8 * next_reward)
 
 		self.update_entry(old_state, action_taken, new_value)
-		# self.q_matrix[old_state_key][action_taken] = new_value
 
 	def calculate_reward(self, new_state, old_state, old_value):
 		new_value = self.get_state_value(new_state)
