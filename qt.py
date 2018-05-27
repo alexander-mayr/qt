@@ -360,7 +360,7 @@ class TetrisApp(object):
 			new_state_key = ai_agent.get_state_key(new_state)
 
 			if(state_key == new_state_key):
-				ai_agent.register(state_key)
+				ai_agent.register_experience(state_key)
 
 
 			ai_agent.show_state(new_state, window, reward, j, self.score)
