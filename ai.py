@@ -28,16 +28,16 @@ class AI():
 
 		self.experience_matrix = defaultlist(factory = lambda: 0)
 
-		if(knowledge_file and os.path.exists(knowledge_file) and os.path.getsize(knowledge_file) > 0):
+		if(self.knowledge_file and os.path.exists(self.knowledge_file) and os.path.getsize(self.knowledge_file) > 0):
 			with open(self.knowledge_file, "rb") as file:
-				print("Loading ", knowledge_file)
+				print("Loading ", self.knowledge_file)
 				data = json_tricks.loads(file.read(), decompression = True)
 				self.q_matrix = data["q_matrix"]
 				self.games_played = int(data["games_played"])
-				print("Loaded " + str(len(self.q_matrix.keys())) + " memories over " + str(self.games_played) + " games.")
-
 				load_em = data["experience_matrix"]
 				self.experience_matrix = [e for i, e in enumerate(loaded_em)]
+
+				print("Loaded " + str(len(self.q_matrix.keys())) + " memories over " + str(sum(self.experience_matrix)) + " experiences in " + str(self.games_played) + " games.")
 		else:
 			self.games_played = 0
 			self.q_matrix = dict()
