@@ -41,9 +41,12 @@ class AI():
 		state_key = self.get_state_key(state)
 
 		try:
-			return self.q_matrix[state_key]["actions"]
+			actions = self.q_matrix[state_key]["actions"]
 		except KeyError:
-			return self.initialize_state(state_key)
+			self.initialize_state(state_key)
+			actions = self.q_matrix[state_key]["actions"]
+
+		return actions
 
 		# if(state_key not in self.q_matrix.keys()):
 		# 	self.initialize_state(state_key)
