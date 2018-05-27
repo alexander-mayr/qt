@@ -46,11 +46,7 @@ class AI():
 			self.initialize_state(state_key)
 			actions = self.q_matrix[state_key]["actions"]
 
-		print("A: ", actions)
 		return actions
-
-		# if(state_key not in self.q_matrix.keys()):
-		# 	self.initialize_state(state_key)
 
 
 	def get_action(self, state):
