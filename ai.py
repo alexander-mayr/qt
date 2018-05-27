@@ -35,7 +35,9 @@ class AI():
 				self.q_matrix = data["q_matrix"]
 				self.games_played = int(data["games_played"])
 				loaded_em = data["experience_matrix"]
-				self.experience_matrix = [e for i, e in enumerate(loaded_em)]
+
+				i, e in enumerate(loaded_em)
+				 	self.experience_matrix[i] = e
 
 				print("Loaded " + str(len(self.q_matrix.keys())) + " memories over " + str(sum(self.experience_matrix)) + " experiences in " + str(self.games_played) + " games.")
 		else:
