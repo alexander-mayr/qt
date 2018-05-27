@@ -139,7 +139,7 @@ class AI():
 		self.experience_matrix[idx] += 1
 
 	def is_registered(self, state_key):
-			idx = list(self.q_matrix.keys()).index(state_key)
+		idx = list(self.q_matrix.keys()).index(state_key)
 		return self.experience_matrix[idx] > 0
 
 	def get_state(self, app):
