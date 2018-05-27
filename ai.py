@@ -40,7 +40,7 @@ class AI():
 		self.experience_matrix = defaultlist(factory = lambda: 0)
 
 		print("Loading Experience Matrix")
-		loaded_em = np.loadz(self.knowledge_file + "_experience.npz", "w", np.array(self.registered))
+		loaded_em = np.load(self.knowledge_file + "_experience.npz", "w", np.array(self.registered))
 		self.experience_matrix = [e for i, e in enumerate(loaded_em)]
 		print("Loaded " + str(sum(self.experience_matrix)) + " experiences.")
 		raise Exception
