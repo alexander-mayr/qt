@@ -40,7 +40,7 @@ class AI():
 		self.experience_matrix = defaultlist(factory = lambda: 0)
 
 		print("Loading Experience Matrix")
-		loaded_em = np.load(self.knowledge_file + "_experience.npz", "w", np.array(self.registered))
+		loaded_em = np.load(self.knowledge_file + "_experience.npz", "w", np.array(self.experience_matrix))
 		self.experience_matrix = [e for i, e in enumerate(loaded_em)]
 		print("Loaded " + str(sum(self.experience_matrix)) + " experiences.")
 		raise Exception
@@ -75,7 +75,7 @@ class AI():
 			content = {"games_played": self.games_played, "q_matrix": self.q_matrix}
 			file.write(json_tricks.dumps(content, compression = True))
 
-		np.savez(self.knowledge_file + "_experience.npz", "w", np.array(self.registered))
+		np.savez(self.knowledge_file + "_experience.npz", "w", np.array(self.experience_matrix))
 
 	def show_state(self, state, window, reward, turn, score):
 		x = ''
@@ -136,9 +136,9 @@ class AI():
 		self.q_matrix[state_key] = [np.random.randint(10) for i in range(5)]
 		return self.q_matrix[state_key]
 
-	def register(self, state_key):
+	def register_experience(self, state_key):
 		idx = list(self.q_matrix.keys()).index(state_key)
-		self.registered[idx] += 1
+		self.experience_matrix[idx] += 1
 
 	def is_registered(self, state_key):
 		return state_key in self.q_matrix.keys()
