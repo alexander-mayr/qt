@@ -409,5 +409,5 @@ if __name__ == '__main__':
 
 		ai_agent.games_played += 1
 
-		# if(args.knowledge_file and ai_agent.games_played % 10 == 0):
-		ai_agent.save_knowledge()
+		if(args.knowledge_file and ai_agent.games_played % 10 == 0):
+			ai_agent.save_knowledge()
