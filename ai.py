@@ -77,7 +77,7 @@ class AI():
 
 		#np.savez(self.knowledge_file + "_experience.npz", "w", np.array(self.experience_matrix))
 
-	def show_state(self, state, old_state, window, reward, turn, score):
+	def show_state(self, state, old_state, window, reward, turn, score, fps):
 		x = ''
 
 		for row_i, row in enumerate(state):
@@ -108,6 +108,7 @@ class AI():
 		window.addstr(1, 0, "turn #" + str(turn))
 		window.addstr(2, 0, "reward: " + str(reward))
 		window.addstr(3, 0, "score: " + str(score))
+		window.addstr(4, 0, "fps: " + str(fps))
 		window.addstr(5, 0, x, cp)
 		window.refresh()
  

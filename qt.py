@@ -363,10 +363,10 @@ class TetrisApp(object):
 				ai_agent.register_experience(state_key)
 
 
-			ai_agent.show_state(new_state, state, window, reward, j, self.score)
+			ai_agent.show_state(new_state, state, window, reward, j, self.score, fps)
 			ai_agent.update_q_matrix(new_state, state, action)
 
-			if(self.time_run >= 1000):
+			if(self.time_run >= 1000/30 * fps):
 				self.drop(False)
 				self.time_run = 0
 
@@ -374,6 +374,7 @@ class TetrisApp(object):
 				dont_burn_my_cpu.tick(maxfps)
 			else:
 				self.time_run += myclock.tick()
+				dont_burn_my_cpu.tick()
 			j = j + 1
 
 if __name__ == '__main__':
