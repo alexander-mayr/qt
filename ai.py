@@ -43,8 +43,6 @@ class AI():
 			self.q_matrix = dict()
 
 
-		raise Exception
-
 	def get_state_actions(self, state):
 		state_key = self.get_state_key(state)
 
