@@ -34,10 +34,11 @@ class AI():
 				data = json_tricks.loads(file.read(), decompression = True)
 				self.q_matrix = data["q_matrix"]
 				self.games_played = int(data["games_played"])
-				load_em = data["experience_matrix"]
+				loaded_em = data["experience_matrix"]
 				self.experience_matrix = [e for i, e in enumerate(loaded_em)]
 
 				print("Loaded " + str(len(self.q_matrix.keys())) + " memories over " + str(sum(self.experience_matrix)) + " experiences in " + str(self.games_played) + " games.")
+				raise Exception
 		else:
 			self.games_played = 0
 			self.q_matrix = dict()
