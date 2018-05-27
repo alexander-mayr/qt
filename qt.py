@@ -363,7 +363,7 @@ class TetrisApp(object):
 				ai_agent.register_experience(state_key)
 
 
-			ai_agent.show_state(new_state, window, reward, j, self.score)
+			ai_agent.show_state(new_state, state, window, reward, j, self.score)
 			ai_agent.update_q_matrix(new_state, state, action)
 
 			if(self.time_run >= 1000):

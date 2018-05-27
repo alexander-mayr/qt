@@ -75,7 +75,7 @@ class AI():
 
 		#np.savez(self.knowledge_file + "_experience.npz", "w", np.array(self.experience_matrix))
 
-	def show_state(self, state, window, reward, turn, score):
+	def show_state(self, state, old_state, window, reward, turn, score):
 		x = ''
 
 		for row_i, row in enumerate(state):
@@ -94,8 +94,8 @@ class AI():
 			x += " ".join(r)
 			x += "\n"
 
-		state_key = self.get_state_key(state)
-		reg = self.is_registered(state_key)
+		old_state_key = self.get_state_key(old_state)
+		reg = self.is_registered(old_state_key)
 
 		if(reg):
 			cp = curses.color_pair(1)
@@ -139,7 +139,7 @@ class AI():
 		self.experience_matrix[idx] += 1
 
 	def is_registered(self, state_key):
-		idx = list(self.q_matrix.keys()).index(state_key)
+			idx = list(self.q_matrix.keys()).index(state_key)
 		return self.experience_matrix[idx] > 0
 
 	def get_state(self, app):
