@@ -25,8 +25,8 @@ class AI():
 	def __init__(self, name = None):
 		self.name = name
 		self.knowledge_file = name + ".gz"
-		self.experience_matrix_file_name = 
 
+		self.experience_matrix = defaultlist(factory = lambda: 0)
 
 		if(knowledge_file and os.path.exists(knowledge_file) and os.path.getsize(knowledge_file) > 0):
 			with open(self.knowledge_file, "rb") as file:
@@ -35,16 +35,14 @@ class AI():
 				self.q_matrix = data["q_matrix"]
 				self.games_played = int(data["games_played"])
 				print("Loaded " + str(len(self.q_matrix.keys())) + " memories over " + str(self.games_played) + " games.")
+
+				load_em = data["experience_matrix"]
+				self.experience_matrix = [e for i, e in enumerate(loaded_em)]
 		else:
 			self.games_played = 0
 			self.q_matrix = dict()
 
-		self.experience_matrix = defaultlist(factory = lambda: 0)
 
-		print("Loading Experience Matrix")
-		loaded_em = np.load(self.knowledge_file + "_experience.npz", "w", np.array(self.experience_matrix))
-		self.experience_matrix = [e for i, e in enumerate(loaded_em)]
-		print("Loaded " + str(sum(self.experience_matrix)) + " experiences.")
 		raise Exception
 
 	def get_state_actions(self, state):
