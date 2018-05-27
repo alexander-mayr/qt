@@ -143,6 +143,7 @@ class TetrisApp(object):
 		self.bground_grid = [[ 8 if x%2==y%2 else 0 for x in range(cols)] for y in range(rows)]
 		self.show = show
 
+
 		self.default_font =  pygame.font.Font(
 			pygame.font.get_default_font(), 12)
 		
@@ -321,21 +322,21 @@ class TetrisApp(object):
 
 					pygame.display.update()
 
-					for event in pygame.event.get():
-						if event.type == pygame.USEREVENT+1:
-							self.drop(False)
-						elif event.type == pygame.QUIT:
-							self.quit()
-						elif event.type == pygame.KEYDOWN:
-							for key in key_actions:
-								if event.key == eval("pygame.K_"
-								+key):
-									key_actions[key]()
+				for event in pygame.event.get():
+					if event.type == pygame.USEREVENT+1:
+						self.drop(False)
+					elif event.type == pygame.QUIT:
+						self.quit()
+					elif event.type == pygame.KEYDOWN:
+						for key in key_actions:
+							if event.key == eval("pygame.K_"
+							+key):
+								key_actions[key]()
 
 			#if not self.paused:
 
 			state = ai_agent.get_state(self)
-			unknown, action, reward = ai_agent.get_action(state)
+			action, reward = ai_agent.get_action(state)
 
 
 			if(action == 0):
@@ -349,26 +350,23 @@ class TetrisApp(object):
 			elif(action == 4):
 				self.insta_drop()
 
+			# ai_agent.register(state)
+
 			fps = dont_burn_my_cpu.get_fps()
 
-			if(fps > 0 and myclock.get_time() >= maxfps/fps):
-				self.drop(False)
-				myclock.tick()
 
 			new_state = ai_agent.get_state(self)
 
-			#print("")
-			#print("game #", ai_agent.games_played + 1)
-			#print("turn #", j)
-			#print("action: ", ai.ACTIONS[action])
+			state_key = ai_agent.get_state_key(state)
+			new_state_key = ai_agent.get_state_key(new_state)
 
+			if(state_key == new_state_key):
+				ai_agent.register(state_key)
+
+
+			ai_agent.show_state(new_state, window, reward, j, self.score)
 			ai_agent.update_q_matrix(new_state, state, action)
-			ai_agent.show_state(new_state, window, reward, j, self.score, unknown)
 
-			#ai_agent.print_state(new_state)
-
-			# ai_agent.print_state(new_state)
-			# print(pygame.time.get_ticks() % 1000)
 
 			if(self.show):
 				dont_burn_my_cpu.tick(maxfps)
@@ -407,5 +405,5 @@ if __name__ == '__main__':
 
 		ai_agent.games_played += 1
 
-		if(args.knowledge_file and ai_agent.games_played % 10 == 0):
-			ai_agent.save_knowledge()
+		# if(args.knowledge_file and ai_agent.games_played % 10 == 0):
+		ai_agent.save_knowledge()

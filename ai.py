@@ -11,6 +11,8 @@ import zlib
 import json_tricks
 import curses
 
+from defaultlist import defaultlist
+
 LEFT = 0
 RIGHT = 1
 UP = 2
@@ -22,6 +24,7 @@ ACTIONS = ["LEFT", "RIGHT", "UP", "DOWN", "ENTER"]
 class AI():
 	def __init__(self, knowledge_file = None):
 		self.knowledge_file = knowledge_file
+		self.registered = defaultlist(factory = lambda: 0)
 
 		if(knowledge_file and os.path.exists(knowledge_file) and os.path.getsize(knowledge_file) > 0):
 			with open(self.knowledge_file, "rb") as file:
@@ -40,31 +43,36 @@ class AI():
 		state_key = self.get_state_key(state)
 
 		if(state_key not in self.q_matrix.keys()):
-			return True, self.initialize_state(state_key)
+			self.initialize_state(state_key)
 
-		return False, self.q_matrix[state_key]
+		return self.q_matrix[state_key]
 
 	def get_action(self, state):
-		return self.get_best_action(state)
-		# if(np.random.randint(10) == 0):
-		# 	v = np.random.randint(4)
-		# 	unknown, actions = self.get_state_actions(state)
-		# 	return unknown, v, actions[v]
-		# else:
-		#	return self.get_best_action(state)
+		actions = self.get_state_actions(state)
 
-	def get_best_action(self, state):
-		unknown, actions = self.get_state_actions(state)
-		amax = np.argmax(actions)
+		if(np.random.randint(10) == 0):
+			action = np.random.randint(4)
+			reward = actions[action]
+		else:
+			action, reward = self.get_best_action(actions)
 
-		return unknown, amax, actions[amax]
+		return action, reward
+
+	def get_best_action(self, actions):
+		best_action = np.argmax(actions)
+		reward = actions[best_action]
+
+		return best_action, reward
 
 	def save_knowledge(self):
 		with open(self.knowledge_file, "wb") as file:
 			content = {"games_played": self.games_played, "q_matrix": self.q_matrix}
 			file.write(json_tricks.dumps(content, compression = True))
 
-	def show_state(self, state, window, reward, turn, score, unknown):
+		with open(self.knowledge_file + "_experience.npz",) as file:
+			np.savez(file, np.array(self.registered))
+
+	def show_state(self, state, window, reward, turn, score):
 		x = ''
 
 		for row_i, row in enumerate(state):
@@ -83,7 +91,10 @@ class AI():
 			x += " ".join(r)
 			x += "\n"
 
-		if(unknown):
+		state_key = self.get_state_key(state)
+		reg = self.is_registered(state_key)
+
+		if(reg):
 			cp = curses.color_pair(1)
 		else:
 			cp = curses.color_pair(2)
@@ -92,7 +103,7 @@ class AI():
 		window.addstr(1, 0, "turn #" + str(turn))
 		window.addstr(2, 0, "reward: " + str(reward))
 		window.addstr(3, 0, "score: " + str(score))
-		window.addstr(4, 0, x, cp)
+		window.addstr(5, 0, x, cp)
 		window.refresh()
  
 	def print_state(self, state, file = None):
@@ -120,6 +131,13 @@ class AI():
 		self.q_matrix[state_key] = [np.random.randint(10) for i in range(5)]
 		return self.q_matrix[state_key]
 
+	def register(self, state_key):
+		idx = list(self.q_matrix.keys()).index(state_key)
+		self.registered[idx] += 1
+
+	def is_registered(self, state_key):
+		return state_key in self.q_matrix.keys()
+
 	def get_state(self, app):
 		state = np.array(app.board)
 
@@ -141,16 +159,13 @@ class AI():
 		self.q_matrix[state_key][action] = value
 
 	def update_q_matrix(self, new_state, old_state, action_taken):
-		unknown, old_state_actions = self.get_state_actions(old_state)
-		unknown, new_state_actions = self.get_state_actions(new_state)
-
-		#if(old_state_key not in self.q_matrix.keys()):
-		#	self.initialize_state(old_state)
+		old_state_actions = self.get_state_actions(old_state)
+		new_state_actions = self.get_state_actions(new_state)
 
 		old_value = old_state_actions[action_taken]
 
 		reward = self.calculate_reward(new_state, old_state, old_value)
-		unknown, next_action, next_reward = self.get_best_action(new_state)
+		next_action, next_reward = self.get_best_action(new_state_actions)
 
 		new_value = (1 - 0.2) * old_value + 0.2 * (reward + 0.8 * next_reward)
 
