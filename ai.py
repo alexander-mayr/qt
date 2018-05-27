@@ -69,8 +69,7 @@ class AI():
 			content = {"games_played": self.games_played, "q_matrix": self.q_matrix}
 			file.write(json_tricks.dumps(content, compression = True))
 
-		with open(self.knowledge_file + "_experience.npz", "w") as file:
-			np.savez(file, np.array(self.registered))
+		np.savez(self.knowledge_file + "_experience.npz", "w", np.array(self.registered))
 
 	def show_state(self, state, window, reward, turn, score):
 		x = ''
