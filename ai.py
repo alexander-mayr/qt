@@ -24,7 +24,7 @@ ACTIONS = ["LEFT", "RIGHT", "UP", "DOWN", "ENTER"]
 class AI():
 	def __init__(self, knowledge_file = None):
 		self.knowledge_file = knowledge_file
-		self.registered = defaultlist(factory = lambda: 0)
+
 
 		if(knowledge_file and os.path.exists(knowledge_file) and os.path.getsize(knowledge_file) > 0):
 			with open(self.knowledge_file, "rb") as file:
@@ -37,7 +37,13 @@ class AI():
 			self.games_played = 0
 			self.q_matrix = dict()
 
-		# raise Exception
+		self.experience_matrix = defaultlist(factory = lambda: 0)
+
+		print("Loading Experience Matrix")
+		loaded_em = np.loadz(self.knowledge_file + "_experience.npz", "w", np.array(self.registered))
+		[self.experience_matrix[i] = e for i, e in enumerate(loaded_em)]
+		print("Loaded " + str(sum(self.experience_matrix)) + " experiences.")
+		raise Exception
 
 	def get_state_actions(self, state):
 		state_key = self.get_state_key(state)
