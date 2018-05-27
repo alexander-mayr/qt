@@ -11,8 +11,6 @@ import zlib
 import json_tricks
 import curses
 
-from defaultlist import defaultlist
-
 LEFT = 0
 RIGHT = 1
 UP = 2
@@ -25,8 +23,6 @@ class AI():
 	def __init__(self, name = None):
 		self.name = name
 		self.knowledge_file = name + ".gz"
-
-		self.experience_matrix = defaultlist(factory = lambda: 0)
 
 		if(self.knowledge_file and os.path.exists(self.knowledge_file) and os.path.getsize(self.knowledge_file) > 0):
 			with open(self.knowledge_file, "rb") as file:
@@ -44,8 +40,8 @@ class AI():
 	def get_state_actions(self, state):
 		state_key = self.get_state_key(state)
 
-		if(state_key not in self.q_matrix.keys()):
-			self.initialize_state(state_key)
+		# if(state_key not in self.q_matrix.keys()):
+		# 	self.initialize_state(state_key)
 
 		return self.q_matrix[state_key]["actions"]
 
@@ -125,7 +121,6 @@ class AI():
 			print_state.append(r)
 
 		pprint(print_state, file)
-
 
 	def initialize_state(self, state_key):
 		self.q_matrix[state_key] = { "experienced": 0, "actions": [np.random.randint(10) for i in range(5)] }
