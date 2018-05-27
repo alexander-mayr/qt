@@ -21,7 +21,7 @@
 
 # Copyright (c) 2010 "Laria Carolin Chabowski"<me@laria.me>
 # 
-# Permission is hereby granted, free of charge, to any person obtaining a copy
+# Permission is hereby granted, <ee of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
@@ -135,8 +135,6 @@ class TetrisApp(object):
 		if(show):
 			pygame.key.set_repeat(250,25)
 
-		self.frames_until_col = 0
-		self.ticks_since_action = 0
 		self.width = cell_size*(cols+6)
 		self.height = cell_size*rows
 		self.rlim = cell_size*cols
@@ -173,6 +171,7 @@ class TetrisApp(object):
 		self.level = 1
 		self.score = 0
 		self.lines = 0
+		self.time_run = 0
 		pygame.time.set_timer(pygame.USEREVENT+1, 1000)
 	
 	def disp_msg(self, msg, topleft):
@@ -322,16 +321,16 @@ class TetrisApp(object):
 
 					pygame.display.update()
 
-				for event in pygame.event.get():
-					if event.type == pygame.USEREVENT+1:
-						self.drop(False)
-					elif event.type == pygame.QUIT:
-						self.quit()
-					elif event.type == pygame.KEYDOWN:
-						for key in key_actions:
-							if event.key == eval("pygame.K_"
-							+key):
-								key_actions[key]()
+					for event in pygame.event.get():
+						if event.type == pygame.USEREVENT+1:
+							self.drop(False)
+						elif event.type == pygame.QUIT:
+							self.quit()
+						elif event.type == pygame.KEYDOWN:
+							for key in key_actions:
+								if event.key == eval("pygame.K_"
+								+key):
+									key_actions[key]()
 
 			#if not self.paused:
 
@@ -367,10 +366,14 @@ class TetrisApp(object):
 			ai_agent.show_state(new_state, window, reward, j, self.score)
 			ai_agent.update_q_matrix(new_state, state, action)
 
+			if(self.time_run >= 1000):
+				self.drop(False)
+				self.time_run = 0
 
 			if(self.show):
 				dont_burn_my_cpu.tick(maxfps)
-
+			else:
+				self.time_run += myclock.tick()
 			j = j + 1
 
 if __name__ == '__main__':
