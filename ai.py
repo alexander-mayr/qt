@@ -22,8 +22,10 @@ ENTER = 4
 ACTIONS = ["LEFT", "RIGHT", "UP", "DOWN", "ENTER"]
 
 class AI():
-	def __init__(self, knowledge_file = None):
-		self.knowledge_file = knowledge_file
+	def __init__(self, name = None):
+		self.name = name
+		self.knowledge_file = name + ".gz"
+		self.experience_matrix_file_name = 
 
 
 		if(knowledge_file and os.path.exists(knowledge_file) and os.path.getsize(knowledge_file) > 0):
@@ -72,10 +74,10 @@ class AI():
 
 	def save_knowledge(self):
 		with open(self.knowledge_file, "wb") as file:
-			content = {"games_played": self.games_played, "q_matrix": self.q_matrix}
+			content = {"games_played": self.games_played, "q_matrix": self.q_matrix, "experience_matrix": self.experience_matrix }
 			file.write(json_tricks.dumps(content, compression = True))
 
-		np.savez(self.knowledge_file + "_experience.npz", "w", np.array(self.experience_matrix))
+		#np.savez(self.knowledge_file + "_experience.npz", "w", np.array(self.experience_matrix))
 
 	def show_state(self, state, window, reward, turn, score):
 		x = ''

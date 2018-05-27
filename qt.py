@@ -378,9 +378,9 @@ class TetrisApp(object):
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
-	parser.add_argument("-f", help = "Knowledge File", dest = "knowledge_file")
+	parser.add_argument("-n", help = "name", dest = "name")
 	args = parser.parse_args()
-	ai_agent = ai.AI(args.knowledge_file)
+	ai_agent = ai.AI(args.name)
 	i = 0
 	window = curses.initscr()
 	curses.start_color()
