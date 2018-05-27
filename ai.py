@@ -41,7 +41,7 @@ class AI():
 
 		print("Loading Experience Matrix")
 		loaded_em = np.loadz(self.knowledge_file + "_experience.npz", "w", np.array(self.registered))
-		[self.experience_matrix[i] = e for i, e in enumerate(loaded_em)]
+		self.experience_matrix = [e for i, e in enumerate(loaded_em)]
 		print("Loaded " + str(sum(self.experience_matrix)) + " experiences.")
 		raise Exception
 
