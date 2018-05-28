@@ -11,20 +11,12 @@ import zlib
 import json_tricks
 import curses
 
-LEFT = 0
-RIGHT = 1
-UP = 2
-DOWN = 3
-ENTER = 4
-
-ACTIONS = ["LEFT", "RIGHT", "UP", "DOWN", "ENTER"]
-
 class AI():
-	def __init__(self, name = None):
+	def __init__(self, name = None, num_actions = 5):
 		self.name = name
-		self.knowledge_file = name + ".gz"
+		self.num_actions = num_actions
 
-		if(self.knowledge_file and os.path.exists(self.knowledge_file) and os.path.getsize(self.knowledge_file) > 0):
+		if(self.name and self.knowledge_file and os.path.exists(self.knowledge_file) and os.path.getsize(self.knowledge_file) > 0):
 			with open(self.knowledge_file, "rb") as file:
 				print("Loading ", self.knowledge_file)
 				data = json_tricks.loads(file.read(), decompression = True)
@@ -36,6 +28,9 @@ class AI():
 			self.games_played = 0
 			self.q_matrix = dict()
 
+
+	def run(self, app, window):
+		score, state, board_value = app.run(self, window)
 
 	def get_state_actions(self, state):
 		state_key = self.get_state_key(state)
@@ -71,41 +66,6 @@ class AI():
 			content = {"games_played": self.games_played, "q_matrix": self.q_matrix, }
 			file.write(json_tricks.dumps(content, compression = True))
 
-	def show_state(self, state, old_state, window, reward, turn, score, fps):
-		x = ''
-
-		for row_i, row in enumerate(state):
-			r = []
-
-			for col_i, e in enumerate(row):
-				if(e == 1):
-					v = "X"
-				elif(e == -1):
-					v = "Y"
-				else:
-					v = " "
-
-				r.append(v)
-
-			x += " ".join(r)
-			x += "\n"
-
-		old_state_key = self.get_state_key(old_state)
-		reg = self.is_registered(old_state_key)
-
-		if(reg):
-			cp = curses.color_pair(1)
-		else:
-			cp = curses.color_pair(2)
-
-		window.addstr(0, 0, "game #" + str(self.games_played))
-		window.addstr(1, 0, "turn #" + str(turn))
-		window.addstr(2, 0, "reward: " + str(reward))
-		window.addstr(3, 0, "score: " + str(score))
-		window.addstr(4, 0, "fps: " + str(fps))
-		window.addstr(5, 0, x, cp)
-		window.refresh()
- 
 	def print_state(self, state, file = None):
 		print_state = []
 
@@ -127,7 +87,7 @@ class AI():
 		pprint(print_state, file)
 
 	def initialize_state(self, state_key):
-		self.q_matrix[state_key] = { "experienced": 0, "actions": [np.random.randint(10) for i in range(5)] }
+		self.q_matrix[state_key] = { "experienced": 0, "actions": [np.random.randint(10) for i in range(self.num_actions)] }
 		return self.q_matrix[state_key]
 
 	def register_experience(self, state_key):
@@ -138,18 +98,6 @@ class AI():
 	def is_registered(self, state_key):
 		return self.q_matrix[state_key]["experienced"] > 0
 
-	def get_state(self, app):
-		state = np.array(app.board)
-
-		for i, row in enumerate(state):
-			state[i][np.where(row != 0)] = 1
-
-		for row_i, row in enumerate(app.stone):
-			for col_i, e in enumerate(row):
-				if e != 0:
-					state[row_i + app.stone_y][col_i + app.stone_x] = -1
-
-		return state
 
 	def get_state_key(self, state):
 		return str(state)
