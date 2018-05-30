@@ -25,9 +25,10 @@ class AI():
 		self.knowledge_file = name + ".gz"
 
 		print("knowledge_file: ", self.knowledge_file)
+		print(os.path.exists(self.knowledge_file))
 		raise Exception
 
-		if(self.knowledge_file and os.path.exists(self.knowledge_file) and os.path.getsize(self.knowledge_file) > 0):
+		if(self.knowledge_file and os.path.exists(self.knowledge_file)):
 			with open(self.knowledge_file, "rb") as file:
 				print("Loading ", self.knowledge_file)
 				data = json_tricks.loads(file.read(), decompression = True)
