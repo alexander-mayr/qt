@@ -26,7 +26,7 @@ class AI():
 
 		print("knowledge_file: ", self.knowledge_file)
 		print(os.path.exists(self.knowledge_file))
-		raise Exception
+		#raise Exception
 
 		if(self.knowledge_file and os.path.exists(self.knowledge_file)):
 			with open(self.knowledge_file, "rb") as file:
