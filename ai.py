@@ -31,7 +31,6 @@ class AI():
 		if(self.knowledge_file and os.path.exists(self.knowledge_file)):
 			with open(self.knowledge_file, "rb") as file:
 				print("Loading ", self.knowledge_file)
-				print(file.read())
 				data = json_tricks.loads(file.read(), decompression = True)
 				self.q_matrix = data["q_matrix"]
 				self.games_played = int(data["games_played"])
