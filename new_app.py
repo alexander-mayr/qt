@@ -24,8 +24,9 @@ UNIT_TYPE_THREE = 23
 UNIT_TYPE_FOUR = 24
 
 
-UNIT_TYPES = [UNIT_TYPE_ONE] # , UNIT_TYPE_TWO, UNIT_TYPE_THREE, UNIT_TYPE_FOUR, UNIT_TYPE_ONE, UNIT_TYPE_TWO, UNIT_TYPE_TWO, UNIT_TYPE_TWO]
+# UNIT_TYPES = [UNIT_TYPE_ONE, UNIT_TYPE_TWO]
 
+UNIT_TYPES = [UNIT_TYPE_ONE , UNIT_TYPE_TWO, UNIT_TYPE_THREE, UNIT_TYPE_FOUR, UNIT_TYPE_ONE, UNIT_TYPE_TWO, UNIT_TYPE_TWO, UNIT_TYPE_TWO]
 
 class Unit(object):
 	def __init__(self, type, x, y):
@@ -33,8 +34,9 @@ class Unit(object):
 		self.x = x
 		self.y = y
 		self.last_pos = [self.x, self.y]
+		self.expansion_radius = 3
 
-	def move(self, dx, dy, rows, cols):
+	def move(self, dx, dy, rows, cols, board):
 		self.last_pos = [self.x, self.y]
 
 		new_pos = [self.x + dx, self.y + dy]
@@ -42,7 +44,10 @@ class Unit(object):
 		if(new_pos == self.last_pos):
 			return False
 
-		if(new_pos[0] < 0 or new_pos[0] >= cols or new_pos[1] < 0 or new_pos[1] > rows):
+		if(new_pos[0] < 0 or new_pos[0] >= rows or new_pos[1] < 0 or new_pos[1] >= cols):
+			return False
+
+		if(board[new_pos[0]][new_pos[1]] in [FRIENDLY_UNIT or ENEMY_UNIT]):
 			return False
 
 		self.x += dx
@@ -81,10 +86,36 @@ class Unit(object):
 		for i in L:
 			N.append((x0+i[0], y0+i[1]))
 
-		return [[n[0], n[1] + 10] for n in N]
+		Z = [[n[0], n[1]] for n in N]
+		Y = []
+
+		for z in Z:
+			if(z in Y):
+				pass
+			else:
+				Y.append(z)
+
+		return Y
+
+	def calculate_radius(self, board):
+		r = 0
+		s = board[self.x][self.y]
+		for p in self.expansion()[1:]:
+			try:
+				if(board[p[0]!= self.x and p[0]][p[1]] == s):
+					r += 1
+			except:
+				continue
+
+		self.expansion_radius = 3 + r
 
 	def expansion(self):
-		return [[self.x, self.y]] + self.circle(self.x, self.y, 3) # + self.circle(self.x, self.y , 2)
+		expansions = []
+
+		for r in range(self.expansion_radius + 1):
+			expansions = expansions + self.circle(self.x, self.y, r)
+		
+		return expansions
 
 class NewApp(object):
 	def __init__(self, show):
@@ -115,73 +146,67 @@ class NewApp(object):
 		self.friendly_units = []
 		self.enemy_units = []
 
-
 		for i, unit_type in enumerate(UNIT_TYPES):
-			self.friendly_units.append(Unit(unit_type, 0, 0))
-			# self.enemy_units.append(Unit(unit_type, self.cols - 3, (5 * i) + 1))
+			self.friendly_units.append(Unit(unit_type, 5 * i, 5))
+			self.enemy_units.append(Unit(unit_type, (5 * i), self.cols - 3))
 
 	def init_board(self):
 		self.board = [[EMPTY for j in range(self.cols)] for i in range(self.rows)]
 
 		for i, unit in enumerate(self.friendly_units):
-			for i, cell in enumerate(unit.expansion()):
-				x = cell[0]
-				y = cell[1] 
-
-				if(x > self.cols - 1 or x < 0 or y > self.rows - 1 or y < 0):
-					continue
-
-				if(self.board[y][x] == EMPTY):
-					self.board[y][x] = FRIENDLY
-				elif(self.board[y][x] == ENEMY):
-					self.board[y][x] = CONTESTED
-				else:
-					pass
-
-		for i, unit in enumerate(self.enemy_units):
-			for i, cell in enumerate(unit.expansion()):
+			for j, cell in enumerate(unit.expansion()):
 				x = cell[0]
 				y = cell[1]
 
-				if(x > self.cols - 1 or x < 0 or y >= self.rows - 1 or y < 0):
+				if(x > self.rows - 1 or x < 0 or y > self.cols - 1 or y < 0):
 					continue
 
-				try:
-					if(self.board[y][x] == EMPTY):
-						if(i == 0):
-							self.board[y][x] = ENEMY_UNIT
-						else:
-							self.board[y][x] = ENEMY
-					elif(self.board[y][x] == FRIENDLY):
-						self.board[y][x] = CONTESTED
-					else:
-						pass
-				except:
-					print(x)
-					print(y)
-					print(len(self.board))
-					print(len(self.board[0]))
-					raise Exception
+				if(j == 0):
+					if(self.board[x][y] in [FRIENDLY, ENEMY, EMPTY]):
+						self.board[x][y] = FRIENDLY_UNIT
+				else:
+					if(self.board[x][y] == EMPTY):
+						self.board[x][y] = FRIENDLY
+					elif(self.board[x][y] == ENEMY):
+						self.board[x][y] = CONTESTED
+
+		for i, unit in enumerate(self.enemy_units):
+			for j, cell in enumerate(unit.expansion()):
+				x = cell[0]
+				y = cell[1]
+
+				if(x > self.rows - 1 or x < 0 or y > self.cols - 1 or y < 0):
+					continue
+
+				if(j == 0):
+					if(self.board[x][y] in [FRIENDLY, ENEMY, EMPTY]):
+						self.board[x][y] = ENEMY_UNIT
+				else:
+					if(self.board[x][y] == EMPTY):
+						self.board[x][y] = ENEMY
+					elif(self.board[x][y] == FRIENDLY):
+						self.board[x][y] = CONTESTED
 
 	def run(self, ai_agent, window):
+		self.init_board()
+
 		while 1:
 			for unit in self.friendly_units + self.enemy_units:
-				while not unit.move( np.random.randint(-1, 2),  np.random.randint(-1, 2), self.rows, self.cols): pass
-			
+				while not unit.move( np.random.randint(-1, 2),  np.random.randint(-1, 2), self.rows, self.cols, self.board): pass
+
 				self.init_board()
+				unit.calculate_radius(self.board)
 				self.show_state(window)
-				sleep(0.5)
 
 	def show_state(self, window):
 		fill = "   "
-
 		c = 3
 
 		for row_i, row in enumerate(self.board):
 			for col_i, e in enumerate(row):
 				window.addstr(row_i, c * col_i, fill, curses.color_pair(e))
 
-		for unit in self.friendly_units:
-			window.addstr(30, 0, str([unit.x, unit.y]))
+		for i, unit in enumerate(self.friendly_units + self.enemy_units):
+			window.addstr(i, 0, str([unit.x, unit.y]) + " " + str(unit.expansion_radius))
 
 		window.refresh()

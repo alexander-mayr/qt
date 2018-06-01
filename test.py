@@ -1,66 +1,27 @@
-from OpenGL.GL import *
-from OpenGL.GLU import *
-from OpenGL.GLUT import *
-
-def drawCircle(x0, y0, r):
-	x, y, p = 0, r, 1-r
-
-	L = []
-	L.append((x0, y0))
-	L.append((x, y))
-
-	for x in range(int(r)):
-		if p < 0:
-			p = p + 2 * x + 3
-		else:
-			y -= 1
-			p = p + 2 * x + 3 - 2 * y
-
-		L.append((x, y))
-
-		if x >= y: break
-
-	N = L[:]
-	for i in L:
-		N.append((i[1], i[0]))
-
-	L = N[:]
-	for i in N:
-		L.append((-i[0], i[1]))
-		L.append((i[0], -i[1]))
-		L.append((-i[0], -i[1]))
-
-	N = []
-	for i in L:
-		N.append((x0+i[0], y0+i[1]))
-
-	return N
-
-def projection():
-	glMatrixMode(GL_PROJECTION)
-	gluOrtho2D(0, 400, 0, 300)
-
-def draw():
-	glClear(GL_COLOR_BUFFER_BIT)
-	glColor3f(1, 0, 0)
-
-	glBegin(GL_POINTS)
-
-	for i in drawCircle(0, 300, 100):
-		glVertex2iv(i)
-
-	glEnd()
-	glFlush()
-
-def main():
-	glutInit()
-	glutInitDisplayMode(GLUT_SINGLE|GLUT_RGB)
-	glutInitWindowSize(400, 300)
-	glutInitWindowPosition(100, 120)
-	glutCreateWindow("Simple Point")
-	projection()
-	glutDisplayFunc(draw)
-	glutMainLoop()
-
-if __name__ == "__main__":
-	main()
+import numpy
+import matplotlib.pyplot as plt    
+n=200 #Grid size, 4 times my visualized output in order to be able to truncate some circles
+empty_lattice=numpy.zeros((n,n)) #The empty 2D grid
+radius=int(numpy.random.uniform(30,90)) #Radius
+xc=int(numpy.random.uniform(0,n-radius)) #X center
+yc=int(numpy.random.uniform(0,n-radius)) #Y center
+x=0
+y=radius
+d=3-2*radius
+while (x<=y):
+    for hor in range(0,x): #This loop is my unfortunate attempt to fill the circle with 1s
+        for ver in range(0,y):
+            empty_lattice[xc+x][yc+y]=1 #1st octant
+            empty_lattice[xc-x][yc+y]=1 #2nd octant
+            empty_lattice[xc+x][yc-y]=1 #3rd octant
+            empty_lattice[xc-x][yc-y]=1 #4th octant
+            empty_lattice[xc+y][yc+x]=1 #5th octant
+            empty_lattice[xc-y][yc+x]=1 #6th octant
+            empty_lattice[xc+y][yc-x]=1 #7th octant
+            empty_lattice[xc-y][yc-x]=1 #8th octant
+    if (d<0):
+        d=d+4*x+6
+    else:
+        d=d+4*(x-y)+10
+        y=y-1
+    x=x+1     
