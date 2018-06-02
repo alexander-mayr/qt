@@ -10,39 +10,42 @@ import hashlib
 import zlib
 import json_tricks
 import curses
+import redis
+import json
 
 class AI():
-	def __init__(self, name = None, num_actions = 5):
+	def __init__(self, db = 0, name = None, num_actions = 5):
 		self.name = name
 		self.num_actions = num_actions
-
-		if(self.name and self.knowledge_file and os.path.exists(self.knowledge_file) and os.path.getsize(self.knowledge_file) > 0):
-			with open(self.knowledge_file, "rb") as file:
-				print("Loading ", self.knowledge_file)
-				data = json_tricks.loads(file.read(), decompression = True)
-				self.q_matrix = data["q_matrix"]
-				self.games_played = int(data["games_played"])
-
-				print("Loaded " + str(len(self.q_matrix.keys())) + " memories over " + str(self.games_played) + " games.")
-		else:
-			self.games_played = 0
-			self.q_matrix = dict()
-
+		self.redis = redis.Redis(db, decode_responses=True)
+		self.games_played = self.redis.get("games_played")
 
 	def run(self, app, window):
 		score, state, board_value = app.run(self, window)
+		gp = self.redis.get("games_played")
+		gp = int(gp) or 0
+
+		self.redis.set("games_played", gp + 1)
 
 	def get_state_actions(self, state):
+		v = self.get_state_actions_dict(state)
+		return v["actions"]
+
+	def get_state_actions_dict(self, state):
 		state_key = self.get_state_key(state)
+		actions_dict = self.redis.get(state_key)
 
-		try:
-			actions = self.q_matrix[state_key]["actions"]
-		except KeyError:
-			self.initialize_state(state_key)
-			actions = self.q_matrix[state_key]["actions"]
+		if(actions_dict == None):
+			actions_dict = self.initial_actions_dict()
+			self.set_state_actions_dict(state, actions_dict)
+		else:
+			actions_dict = json.loads(str(actions_dict))
 
-		return actions
+		return actions_dict
 
+	def set_state_actions_dict(self, state, value):
+		key = self.get_state_key(state)
+		self.redis.set(key, json.dumps(value))
 
 	def get_action(self, state):
 		actions = self.get_state_actions(state)
@@ -60,11 +63,6 @@ class AI():
 		reward = actions[best_action]
 
 		return best_action, reward
-
-	def save_knowledge(self):
-		with open(self.knowledge_file, "wb") as file:
-			content = {"games_played": self.games_played, "q_matrix": self.q_matrix, }
-			file.write(json_tricks.dumps(content, compression = True))
 
 	def print_state(self, state, file = None):
 		print_state = []
@@ -86,25 +84,27 @@ class AI():
 
 		pprint(print_state, file)
 
-	def initialize_state(self, state_key):
-		self.q_matrix[state_key] = { "experienced": 0, "actions": [np.random.randint(10) for i in range(self.num_actions)] }
-		return self.q_matrix[state_key]
-
-	def register_experience(self, state_key):
-		v = int(self.q_matrix[state_key]["experienced"])
-		self.q_matrix[state_key]["experienced"]= v + 1
+	def initial_actions_dict(self):
+		return { "experienced": 0, "actions": [np.random.randint(10) for i in range(self.num_actions)] }
 
 
-	def is_registered(self, state_key):
-		return self.q_matrix[state_key]["experienced"] > 0
+	def register_experience(self, state):
+		d = self.get_state_actions_dict(state)
+		v = int(d["experienced"])
+		d["experienced"] = v + 1
 
+		self.set_state_actions_dict(state, d)
+
+	def is_registered(self, state):
+		return int(self.get_state_actions_dict(state)["experienced"]) > 0
 
 	def get_state_key(self, state):
 		return str(state)
 
 	def update_entry(self, state, action, value):
-		state_key = self.get_state_key(state)
-		self.q_matrix[state_key]["actions"][action] = value
+		d = self.get_state_actions_dict(state)
+		d["actions"][action] = value
+		self.set_state_actions_dict(state, d)
 
 	def update_q_matrix(self, new_state, old_state, action_taken):
 		old_state_actions = self.get_state_actions(old_state)
@@ -137,4 +137,4 @@ class AI():
 			else:
 				value += 50
 
-		return value # if occupied != 0 else 100
+		return value

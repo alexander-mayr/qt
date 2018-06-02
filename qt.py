@@ -38,3 +38,6 @@ if __name__ == '__main__':
 			raise Exception("No such game")
 
 		ai_agent.run(App, window)
+
+		# if(i % 10 == 0):
+		# 	ai_agent.save_knowledge_file()

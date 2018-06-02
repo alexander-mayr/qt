@@ -311,8 +311,7 @@ class TetrisApp(object):
 			x += " ".join(r)
 			x += "\n"
 
-		old_state_key = self.ai_agent.get_state_key(old_state)
-		reg = self.ai_agent.is_registered(old_state_key)
+		reg = self.ai_agent.is_registered(old_state)
 
 		if(reg):
 			cp = curses.color_pair(1)
@@ -387,7 +386,7 @@ class TetrisApp(object):
 
 			#if not self.paused:
 
-			state = self.get_state
+			state = self.get_state()
 			action, reward = ai_agent.get_action(state)
 
 
@@ -406,14 +405,10 @@ class TetrisApp(object):
 
 			fps = dont_burn_my_cpu.get_fps()
 
-
 			new_state = self.get_state()
 
-			state_key = ai_agent.get_state_key(state)
-			new_state_key = ai_agent.get_state_key(new_state)
-
-			if(state_key != new_state_key):
-				ai_agent.register_experience(state_key)
+			if(not np.array_equal(np.array(state), np.array(new_state))):
+				ai_agent.register_experience(state)
 
 
 			self.show_state(new_state, state, window, reward, j, self.score, fps)
