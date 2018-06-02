@@ -20,12 +20,16 @@ class AI():
 		self.redis = redis.Redis(db, decode_responses=True)
 		self.games_played = self.redis.get("games_played")
 
+		if(self.games_played == None):
+			self.games_played = 0
+		else:
+			self.games_played = int(self.games_played)
+
 	def run(self, app, window):
 		score, state, board_value = app.run(self, window)
-		gp = self.redis.get("games_played")
-		gp = int(gp) or 0
 
-		self.redis.set("games_played", gp + 1)
+		self.games_played = self.games_played + 1
+		self.redis.set("games_played", self.games_played)
 
 	def get_state_actions(self, state):
 		v = self.get_state_actions_dict(state)
@@ -64,29 +68,8 @@ class AI():
 
 		return best_action, reward
 
-	def print_state(self, state, file = None):
-		print_state = []
-
-		for row_i, row in enumerate(state):
-			r = []
-
-			for col_i, e in enumerate(row):
-				if(e == 1):
-					v = "X"
-				elif(e == -1):
-					v = "Y"
-				else:
-					v = " "
-
-				r.append(v)
-
-			print_state.append(r)
-
-		pprint(print_state, file)
-
 	def initial_actions_dict(self):
 		return { "experienced": 0, "actions": [np.random.randint(10) for i in range(self.num_actions)] }
-
 
 	def register_experience(self, state):
 		d = self.get_state_actions_dict(state)
@@ -99,7 +82,8 @@ class AI():
 		return int(self.get_state_actions_dict(state)["experienced"]) > 0
 
 	def get_state_key(self, state):
-		return str(state)
+		t = "".join(map(str, np.array(state).flatten()))
+		return hashlib.sha512(t.encode()).hexdigest()
 
 	def update_entry(self, state, action, value):
 		d = self.get_state_actions_dict(state)
