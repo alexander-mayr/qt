@@ -10,7 +10,7 @@ class AI():
 	def __init__(self, db = 0, name = None, num_actions = 5):
 		self.name = name
 		self.num_actions = num_actions
-		self.redis = redis.Redis(db, decode_responses=True)
+		self.redis = redis.Redis(decode_responses=True)
 		self.games_played = self.redis.get("games_played")
 
 		self.redis.set("highscore", 0)
@@ -22,11 +22,17 @@ class AI():
 	def run(self, app, window):
 		score, state, board_value = app.run(self, window)
 
+		self.redis.set("last_score", score)
 		self.games_played = self.games_played + 1
 		self.redis.set("games_played", self.games_played)
 
 		if(int(self.redis.get("highscore")) < score):
 			self.redis.set("highscore", score)
+			print("set: ", self.redis.get("highsc"))
+
+
+		if(score != 0):
+			pass # raise  Exception(self.redis.get("last_score"))
 
 	def get_state_actions(self, state):
 		v = self.get_state_actions_dict(state)

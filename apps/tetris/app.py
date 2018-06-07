@@ -145,7 +145,6 @@ class TetrisApp(object):
 
 		self.reg_state = 1
 		self.redis = redis.Redis(decode_responses=True)
-
 		self.default_font =  pygame.font.Font(
 			pygame.font.get_default_font(), 12)
 		
@@ -314,11 +313,11 @@ class TetrisApp(object):
 
 		cp = curses.color_pair(self.reg_state)
 
+		window.addstr(3, 0, "game #" + str(self.ai_agent.games_played + 1))
 		window.addstr(0, 0, "highscore: " + self.redis.get("highscore"))
-		window.addstr(1, 0, "game #" + str(self.ai_agent.games_played))
-		window.addstr(2, 0, "turn #" + str(turn))
-		window.addstr(3, 0, "reward: " + str(reward))
-		window.addstr(4, 0, "score: " + str(score))
+		window.addstr(1, 0, "last score: " + (self.redis.get("last_score")))
+		window.addstr(2, 0, "current score: " + str(score))
+		window.addstr(4, 0, "reward: " + str(reward))
 		window.addstr(5, 0, "fps: " + str(fps))
 		window.addstr(6, 0, x, cp)
 		window.refresh()
