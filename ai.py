@@ -13,7 +13,12 @@ class AI():
 		self.redis = redis.Redis(decode_responses=True)
 		self.games_played = self.redis.get("games_played")
 
-		self.redis.set("highscore", 0)
+		if(self.redis.get("highscore") == None):
+			self.redis.set("highscore", 0)
+
+		if(self.redis.get("last_score") == None):
+			self.redis.set("last_score", 0)
+
 		if(self.games_played == None):
 			self.games_played = 0
 		else:
