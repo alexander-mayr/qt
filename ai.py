@@ -13,6 +13,7 @@ class AI():
 		self.redis = redis.Redis(db, decode_responses=True)
 		self.games_played = self.redis.get("games_played")
 
+		self.redis.set("highscore", 0)
 		if(self.games_played == None):
 			self.games_played = 0
 		else:
@@ -23,6 +24,9 @@ class AI():
 
 		self.games_played = self.games_played + 1
 		self.redis.set("games_played", self.games_played)
+
+		if(int(self.redis.get("highscore")) < score):
+			self.redis.set("highscore", score)
 
 	def get_state_actions(self, state):
 		v = self.get_state_actions_dict(state)
