@@ -4,13 +4,12 @@ import pygame, sys
 import curses
 import numpy as np
 import os
+import argparse
 
 import ai
 
-import argparse
-import new_app
-import tetris_app
-
+from apps import new
+from apps import tetris
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
@@ -30,9 +29,9 @@ if __name__ == '__main__':
 
 	while(True):
 		if(args.game == "tetris"):
-			App = tetris_app.TetrisApp(show)
+			App = tetris.TetrisApp(show)
 		elif(args.game == "new"):
-			App = new_app.NewApp(show)
+			App = new.App(show)
 		else:
 			print("No such game")
 			raise Exception("No such game")

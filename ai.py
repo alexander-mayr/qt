@@ -1,14 +1,7 @@
 import numpy as np
 
-from time import sleep
-from pprint import pprint
-
-import pickle
 import os
 import hashlib
-
-import zlib
-import json_tricks
 import curses
 import redis
 import json

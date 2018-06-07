@@ -48,7 +48,6 @@ import os
 import ai
 
 import argparse
-import new_app
 
 # The configuration
 cell_size =	18
@@ -314,9 +313,9 @@ class TetrisApp(object):
 		reg = self.ai_agent.is_registered(old_state)
 
 		if(reg):
-			cp = curses.color_pair(1)
-		else:
 			cp = curses.color_pair(2)
+		else:
+			cp = curses.color_pair(1)
 
 		window.addstr(0, 0, "game #" + str(self.ai_agent.games_played))
 		window.addstr(1, 0, "turn #" + str(turn))
