@@ -28,11 +28,6 @@ class AI():
 
 		if(int(self.redis.get("highscore")) < score):
 			self.redis.set("highscore", score)
-			print("set: ", self.redis.get("highsc"))
-
-
-		if(score != 0):
-			pass # raise  Exception(self.redis.get("last_score"))
 
 	def get_state_actions(self, state):
 		v = self.get_state_actions_dict(state)
