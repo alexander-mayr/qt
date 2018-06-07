@@ -144,6 +144,7 @@ class TetrisApp(object):
 		curses.init_pair(1, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
 		curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
 
+		self.reg_state = 1
 		self.default_font =  pygame.font.Font(
 			pygame.font.get_default_font(), 12)
 		
@@ -310,12 +311,7 @@ class TetrisApp(object):
 			x += " ".join(r)
 			x += "\n"
 
-		reg = self.ai_agent.is_registered(old_state)
-
-		if(reg):
-			cp = curses.color_pair(2)
-		else:
-			cp = curses.color_pair(1)
+		cp = curses.color_pair(self.reg_state)
 
 		window.addstr(0, 0, "game #" + str(self.ai_agent.games_played))
 		window.addstr(1, 0, "turn #" + str(turn))
@@ -407,8 +403,14 @@ class TetrisApp(object):
 			new_state = self.get_state()
 
 			if(not np.array_equal(np.array(state), np.array(new_state))):
-				ai_agent.register_experience(state)
+				if(not ai_agent.is_registered(new_state)):
+					self.reg_state = 1
+				else:
+					self.reg_state = 2
 
+				ai_agent.register_experience(state)
+			else:
+				pass # raise Exception(str(action))
 
 			self.show_state(new_state, state, window, reward, j, self.score, fps)
 			ai_agent.update_q_matrix(new_state, state, action)
