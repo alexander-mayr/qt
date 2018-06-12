@@ -3,56 +3,81 @@ import numpy as np
 import os
 import hashlib
 import curses
-import redis
 import json
+
+import h5py
+
+CHUNKS = 200
+
+from collections import defaultdict
 
 class AI():
 	def __init__(self, db = 0, name = None, num_actions = 5):
 		self.name = name
 		self.num_actions = num_actions
-		self.redis = redis.Redis(decode_responses=True)
-		self.games_played = self.redis.get("games_played")
+		self.filename = name + ".hdf5"
 
-		if(self.redis.get("highscore") == None):
-			self.redis.set("highscore", 0)
+		self.file = h5py.File(self.filename)
+			
+		if(set(self.file.keys()) != set(["q_matrix", "hash_indices", "experience_counts","stats"])):
+			self.file.create_dataset("q_matrix", (CHUNKS, num_actions), compression = "gzip", maxshape = (1000 * CHUNKS, num_actions))
+			self.file.create_dataset("hash_indices", (CHUNKS,), dtype="S512", compression = "gzip", maxshape = (1000 * CHUNKS,))
+			self.file.create_dataset("experience_counts", (CHUNKS,), compression = "gzip", maxshape = (1000 * CHUNKS, ))
+			self.file.create_dataset("stats", (1,))
 
-		if(self.redis.get("last_score") == None):
-			self.redis.set("last_score", 0)
+		self.q_matrix = self.file["q_matrix"]
+		self.hash_indices = self.file["hash_indices"]
+		self.experience_counts = self.file["experience_counts"]
+		self.games_played = self.file["stats"][0]
 
-		if(self.games_played == None):
-			self.games_played = 0
-		else:
-			self.games_played = int(self.games_played)
+	def save_file(self):
+		self.file["stats"].write_direct(np.array([self.games_played]))
+		self.file.close()
+		self.file = h5py.File(self.filename)
+		self.q_matrix = self.file["q_matrix"]
+		self.hash_indices = self.file["hash_indices"]
+		self.experience_counts = self.file["experience_counts"]
+
+		self.games_played = self.file["stats"][0]
 
 	def run(self, app, window):
 		score, state, board_value = app.run(self, window)
-
-		self.redis.set("last_score", score)
 		self.games_played = self.games_played + 1
-		self.redis.set("games_played", self.games_played)
-
-		if(int(self.redis.get("highscore")) < score):
-			self.redis.set("highscore", score)
+		self.save_file()
 
 	def get_state_actions(self, state):
-		v = self.get_state_actions_dict(state)
-		return v["actions"]
-
-	def get_state_actions_dict(self, state):
 		state_key = self.get_state_key(state)
-		actions_dict = self.redis.get(state_key)
+		state_key_idx = self.get_index(state)
 
-		if(actions_dict == None):
-			actions_dict = self.initial_actions_dict()
-			self.set_state_actions_dict(state, actions_dict)
-		else:
-			actions_dict = json.loads(str(actions_dict))
+		actions = self.q_matrix[state_key_idx]
 
-		return actions_dict
+		# if(len(state_key_idx) > 0):
+		# 	actions = self.q_matrix[state_key_idx]
+		# else:
+		# 	actions = self.initial_actions()
+		# 	self.set_state_actions(state, actions)
 
-	def set_state_actions_dict(self, state, value):
-		key = self.get_state_key(state)
-		self.redis.set(key, json.dumps(value))
+		return actions
+
+	def resize_datasets(self):
+		q = self.hash_indices.shape[0]/CHUNKS
+		p = (q + 1) * CHUNKS
+		self.hash_indices.resize((p,))
+		self.q_matrix.resize((p, self.num_actions))
+		self.experience_counts.resize((p,))
+
+	def check_dataset_size(self):
+		left = len(np.where(self.hash_indices.value == b"")[0])
+
+		if(left <= 10):
+			self.resize_datasets()
+
+	def set_state_actions(self, state, value):
+		state_key = self.get_state_key(state)
+		state_key_idx = self.get_index(state) # np.where(self.hash_indices.value == str.encode(state_key))[0]
+		X = self.q_matrix.value
+		X[state_key_idx] = value
+		self.q_matrix.write_direct(X)
 
 	def get_action(self, state):
 		actions = self.get_state_actions(state)
@@ -71,27 +96,39 @@ class AI():
 
 		return best_action, reward
 
-	def initial_actions_dict(self):
-		return { "experienced": 0, "actions": [np.random.randint(10) for i in range(self.num_actions)] }
+	def initial_actions(self):
+		return [np.random.randint(10) for i in range(self.num_actions)]
+
+	def get_index(self, state):
+		state_key = self.get_state_key(state)
+		indices = self.hash_indices.value
+		state_key_idx = np.where(indices == np.string_(state_key))[0]
+
+		if(len(state_key_idx) == 0):
+			state_key_idx = np.where(indices == b"")[0]
+			indices[state_key_idx[0]] = np.string_(state_key)
+			self.hash_indices.write_direct(indices)
+
+		return state_key_idx[0]
 
 	def register_experience(self, state):
-		d = self.get_state_actions_dict(state)
-		v = int(d["experienced"])
-		d["experienced"] = v + 1
-
-		self.set_state_actions_dict(state, d)
+		state_key_idx = self.get_index(state)
+		X = self.experience_counts.value
+		X[state_key_idx] = X[state_key_idx] + 1
+		self.experience_counts.write_direct(X)
 
 	def is_registered(self, state):
-		return int(self.get_state_actions_dict(state)["experienced"]) > 0
+		state_key_idx = self.get_index(state)
+		return self.experience_counts[state_key_idx] > 0
 
 	def get_state_key(self, state):
 		t = "".join(map(str, np.array(state).flatten()))
 		return hashlib.sha512(t.encode()).hexdigest()
 
 	def update_entry(self, state, action, value):
-		d = self.get_state_actions_dict(state)
-		d["actions"][action] = value
-		self.set_state_actions_dict(state, d)
+		actions = self.get_state_actions(state)
+		actions[action] = value
+		self.set_state_actions(state, actions)
 
 	def update_q_matrix(self, new_state, old_state, action_taken):
 		old_state_actions = self.get_state_actions(old_state)

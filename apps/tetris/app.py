@@ -46,7 +46,7 @@ import numpy as np
 import os
 
 import ai
-import redis
+import time
 
 # The configuration
 cell_size =	18
@@ -144,7 +144,7 @@ class TetrisApp(object):
 		curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
 
 		self.reg_state = 1
-		self.redis = redis.Redis(decode_responses=True)
+		# self.redis = redis.Redis(decode_responses=True)
 		self.default_font =  pygame.font.Font(
 			pygame.font.get_default_font(), 12)
 		
@@ -313,13 +313,11 @@ class TetrisApp(object):
 
 		cp = curses.color_pair(self.reg_state)
 
-		window.addstr(3, 0, "game #" + str(self.ai_agent.games_played + 1))
-		window.addstr(0, 0, "highscore: " + self.redis.get("highscore"))
-		window.addstr(1, 0, "last score: " + (self.redis.get("last_score")))
-		window.addstr(2, 0, "current score: " + str(score))
-		window.addstr(4, 0, "reward: " + str(reward))
-		window.addstr(5, 0, "fps: " + str(fps))
-		window.addstr(6, 0, x, cp)
+		window.addstr(0, 0, "game #" + str(self.ai_agent.games_played + 1))
+		window.addstr(1, 0, "current score: " + str(score))
+		window.addstr(2, 0, "reward: " + str(reward))
+		window.addstr(3, 0, "fps: " + str(fps))
+		window.addstr(4, 0, x, cp)
 		window.refresh()
 
 	def get_state(self):
@@ -382,9 +380,9 @@ class TetrisApp(object):
 
 			#if not self.paused:
 
+			ai_agent.check_dataset_size()
 			state = self.get_state()
 			action, reward = ai_agent.get_action(state)
-
 
 			if(action == 0):
 				self.move(-1)
@@ -397,11 +395,10 @@ class TetrisApp(object):
 			elif(action == 4):
 				self.insta_drop()
 
-			# ai_agent.register(state)
-
 			fps = dont_burn_my_cpu.get_fps()
-
 			new_state = self.get_state()
+
+			ai_agent.update_q_matrix(new_state, state, action)
 
 			if(not np.array_equal(np.array(state), np.array(new_state))):
 				if(not ai_agent.is_registered(new_state)):
@@ -410,11 +407,6 @@ class TetrisApp(object):
 					self.reg_state = 2
 
 				ai_agent.register_experience(state)
-			else:
-				pass # raise Exception(str(action))
-
-			self.show_state(new_state, state, window, reward, j, self.score, fps)
-			ai_agent.update_q_matrix(new_state, state, action)
 
 			if(self.time_run >= 1000/30 * fps):
 				self.drop(False)
@@ -426,3 +418,5 @@ class TetrisApp(object):
 				self.time_run += myclock.tick()
 				dont_burn_my_cpu.tick()
 			j = j + 1
+
+			self.show_state(new_state, state, window, reward, j, self.score, fps)

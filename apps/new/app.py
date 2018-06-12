@@ -1,4 +1,5 @@
-import pygame, sys, curses, ai
+# import pygame
+import sys, curses, ai
 import numpy as np
 from time import sleep
 from random import randrange as rand
@@ -42,7 +43,6 @@ class App(object):
 
 			xb = rand(NUM_COLS/2, NUM_COLS)
 			yb = rand(NUM_ROWS)
-
 
 			self.friendly_units.append(FriendlyUnit(unit_type, xa, ya))
 			self.enemy_units.append(FriendlyUnit(unit_type, xb, yb))

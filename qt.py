@@ -1,6 +1,7 @@
 
 from random import randrange as rand
-import pygame, sys
+# import pygame
+import sys
 import curses
 import numpy as np
 import os
@@ -17,7 +18,7 @@ if __name__ == '__main__':
 	parser.add_argument("-g", help = "game", dest = "game")
 
 	args = parser.parse_args()
-	ai_agent = ai.AI(args.name)
+	ai_agent = ai.AI(name = args.name)
 	i = 0
 	window = curses.initscr()
 	curses.start_color()
