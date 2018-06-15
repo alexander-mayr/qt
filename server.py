@@ -14,11 +14,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 		self.send_header('Content-type', 'text/html')
 		self.end_headers()
 
-		file = h5py.File("something.hdf5")
-		matrix = file["q_matrix"]
-		
+		print("reading file")
+		file = h5py.File("something.hdf5.pub")
+		matrix = file["q_matrix"][:]
+
+		print("setting labels")
 		labels = [l[:20] for l in file["hash_indices"]]
-		
+
+		print("generating dataframe")
 		df = pd.DataFrame(matrix, index = labels, columns = [i for i in range(matrix.shape[1])])
 		# df.add(file["hash_indices"])
 		self.wfile.write(df.to_html().encode())
