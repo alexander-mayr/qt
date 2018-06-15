@@ -136,7 +136,7 @@ class AI():
 
 	def register_experience(self, state):
 		n, state_key_idx = self.get_index(state)
-		self.experience_counts[state_key_idx] = X[state_key_idx] + 1
+		self.experience_counts[state_key_idx] += 1
 
 	def is_registered(self, state):
 		n, state_key_idx = self.get_index(state)
