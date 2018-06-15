@@ -8,7 +8,7 @@ import json
 import h5py
 import time
 
-CHUNKS = 1000
+CHUNKS = 100000
 
 from collections import defaultdict
 def tree(): return defaultdict(tree)
@@ -115,20 +115,22 @@ class AI():
 			L = L[n]
 
 		self.log("fetch node time: " + str(time.time() - t0))
-		t0 = time.time()
-
+		
 		if("value" not in L.keys()):
 			state_key_idx = self.next_index
 
 			if(state_key_idx >= self.hash_indices.shape[0]):
+				t0 = time.time()
 				self.resize_datasets()
 				self.log("resize time: " + str(time.time() - t0))
 
 			#t0 = time.time()
-			indices = self.hash_indices.value
+			#indices = self.hash_indices.value
+			#self.log("indices time: " + str(time.time() - t0))
+
 			L["value"] = state_key_idx
-			indices[state_key_idx] = np.string_(state_key)
-			self.hash_indices[:] = indices
+			#indices[state_key_idx] = np.string_(state_key)
+			self.hash_indices[state_key_idx] = np.string_(state_key) # indices
 			self.log("write time: " + str(time.time() - t0))
 			t0 = time.time()
 
