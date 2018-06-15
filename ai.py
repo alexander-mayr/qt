@@ -26,15 +26,12 @@ class AI():
 			self.file.create_dataset("experience_counts", (CHUNKS,), compression = "gzip", maxshape = (1000 * CHUNKS, ))
 			self.file.create_dataset("stats", (1,))
 
-			self.next_index = 0
-		else:
-			self.next_index = np.where(self.hash_indices.value == b"")[0][0]
-
 		self.q_matrix = self.file["q_matrix"]
 		self.hash_indices = self.file["hash_indices"]
 		self.experience_counts = self.file["experience_counts"]
 		self.games_played = self.file["stats"][0]
 		self.T = tree()
+		self.next_index = np.where(self.hash_indices.value == b"")[0][0]
 
 	def save_file(self):
 		self.file["stats"].write_direct(np.array([self.games_played]))
@@ -121,12 +118,13 @@ class AI():
 				self.resize_datasets()
 				indices = self.hash_indices.value
 
+			L["value"] = self.next_index
 			indices[self.next_index] = np.string_(state_key)
 			self.hash_indices.write_direct(indices)
 			self.next_index += 1
 			new = True
 		else:
-			state_key_idx = state_key_idx[0]
+			state_key_idx = L["value"]
 
 		return new, state_key_idx
 

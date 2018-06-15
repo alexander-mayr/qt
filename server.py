@@ -21,6 +21,5 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 		file.close()
 		return
 
-print('Server listening on port 8000...')
-httpd = socketserver.TCPServer(('', 8000), Handler)
+httpd = socketserver.TCPServer(('', 9000), Handler)
 httpd.serve_forever()
