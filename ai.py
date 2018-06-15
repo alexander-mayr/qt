@@ -6,8 +6,9 @@ import curses
 import json
 
 import h5py
+import time
 
-CHUNKS = 200
+CHUNKS = 10000
 
 from collections import defaultdict
 def tree(): return defaultdict(tree)
@@ -32,6 +33,10 @@ class AI():
 		self.games_played = self.file["stats"][0]
 		self.T = tree()
 		self.next_index = np.where(self.hash_indices.value == b"")[0][0]
+
+	def log(self, msg):
+		with open("ai.log", "a") as f:
+			f.write(msg + "\n")
 
 	def save_file(self):
 		self.file["stats"].write_direct(np.array([self.games_played]))
@@ -65,6 +70,7 @@ class AI():
 		return actions
 
 	def resize_datasets(self):
+		self.log("resize at shape: " + str(self.hash_indices.shape))
 		q = self.hash_indices.shape[0]/CHUNKS
 		p = (q + 1) * CHUNKS
 		self.hash_indices.resize((p,))
@@ -99,32 +105,43 @@ class AI():
 		return [np.random.randint(10) for i in range(self.num_actions)]
 
 	def get_index(self, state):
-		state_key = self.get_state_key(state)
-		indices = self.hash_indices.value
+		t0 = time.time()
+		tx = t0
 
+		state_key = self.get_state_key(state)
 		new = False
 		L = self.T
 
 		for n in state_key:
 			L = L[n]
 
+		self.log("fetch node time: " + str(time.time() - t0))
+		t0 = time.time()
+
 		if("value" not in L.keys()):
-			state_key_idx = -1
-		else:
-			state_key_idx = L["value"]
+			state_key_idx = self.next_index
 
-		if(state_key_idx == -1):
-			if(self.next_index >= self.hash_indices.shape[0]):
+			if(state_key_idx >= self.hash_indices.shape[0]):
 				self.resize_datasets()
-				indices = self.hash_indices.value
+				self.log("resize time: " + str(time.time() - t0))
+				t0 = time.time()
 
-			L["value"] = self.next_index
-			indices[self.next_index] = np.string_(state_key)
-			self.hash_indices.write_direct(indices)
+			
+			indices = self.hash_indices.value
+
+			L["value"] = state_key_idx
+			indices[state_key_idx] = np.string_(state_key)
+			# self.hash_indices.write_direct(indices)
+			self.hash_indices[:] = indices
+			self.log("write time: " + str(time.time() - t0))
+			t0 = time.time()
+
 			self.next_index += 1
 			new = True
 		else:
 			state_key_idx = L["value"]
+
+		self.log("get_index time: " + str(time.time() - tx) + "\n")
 
 		return new, state_key_idx
 
