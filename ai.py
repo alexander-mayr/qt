@@ -52,7 +52,7 @@ class AI():
 		score, state, board_value = app.run(self, window)
 		self.games_played = self.games_played + 1
 		
-		if(self.games_played % 100):
+		if(self.games_played % 100 == 0):
 			self.log("save to file")
 			self.save_file()
 
