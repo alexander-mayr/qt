@@ -26,6 +26,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 		# df.add(file["hash_indices"])
 		self.wfile.write(df.to_html().encode())
 		file.close()
+		print("done")
 		return
 
 httpd = socketserver.TCPServer(('', int(os.environ["P"])), Handler)
