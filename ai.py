@@ -11,7 +11,6 @@ import time
 CHUNKS = 100000
 
 from collections import defaultdict
-def tree(): return defaultdict(tree)
 
 class AI():
 	def __init__(self, db = 0, name = None, num_actions = 5):
@@ -31,7 +30,7 @@ class AI():
 		self.hash_indices = self.file["hash_indices"]
 		self.experience_counts = self.file["experience_counts"]
 		self.games_played = self.file["stats"][0]
-		self.T = tree()
+		self.T = defaultdict(lambda: -1)
 		self.next_index = np.where(self.hash_indices.value == b"")[0][0]
 
 	def log(self, msg):
@@ -77,11 +76,15 @@ class AI():
 		self.experience_counts.resize((p,))
 
 	def set_state_actions(self, state, value):
+		t0 = time.time()
+
 		state_key = self.get_state_key(state)
 		n, state_key_idx = self.get_index(state)
 		X = self.q_matrix.value
 		X[state_key_idx] = value
 		self.q_matrix[:] = X
+
+		self.log("set actions time: " + str(time.time() - t0))
 
 	def get_action(self, state):
 		actions = self.get_state_actions(state)
@@ -109,14 +112,12 @@ class AI():
 
 		state_key = self.get_state_key(state)
 		new = False
-		L = self.T
-
-		for n in state_key:
-			L = L[n]
 
 		self.log("fetch node time: " + str(time.time() - t0))
 		
-		if("value" not in L.keys()):
+		state_key_idx = self.T[state_key]
+
+		if(state_key_idx == -1):
 			state_key_idx = self.next_index
 
 			if(state_key_idx >= self.hash_indices.shape[0]):
@@ -124,22 +125,15 @@ class AI():
 				self.resize_datasets()
 				self.log("resize time: " + str(time.time() - t0))
 
-			#t0 = time.time()
-			#indices = self.hash_indices.value
-			#self.log("indices time: " + str(time.time() - t0))
-
-			L["value"] = state_key_idx
-			#indices[state_key_idx] = np.string_(state_key)
-			self.hash_indices[state_key_idx] = np.string_(state_key) # indices
+			self.T[state_key] = state_key_idx
+			self.hash_indices[state_key_idx] = np.string_(state_key)
 			self.log("write time: " + str(time.time() - t0))
 			t0 = time.time()
 
 			self.next_index += 1
 			new = True
-		else:
-			state_key_idx = L["value"]
 
-		self.log("get_index time: " + str(time.time() - tx) + "\n")
+		self.log("get_index time: " + str(time.time() - tx))
 
 		return new, state_key_idx
 
