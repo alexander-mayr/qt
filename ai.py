@@ -101,8 +101,8 @@ class AI():
 		return [np.random.randint(10) for i in range(self.num_actions)]
 
 	def get_index(self, state):
-		t0 = time.time()
-		tx = t0
+		#t0 = time.time()
+		#tx = t0
 
 		state_key = self.get_state_key(state)
 		new = False
@@ -111,22 +111,22 @@ class AI():
 		for n in state_key:
 			L = L[n]
 
-		self.log("fetch node time: " + str(time.time() - t0))
-		t0 = time.time()
+		#self.log("fetch node time: " + str(time.time() - t0))
+		#t0 = time.time()
 
 		if("value" not in L.keys()):
 			state_key_idx = self.next_index
 
 			if(state_key_idx >= self.hash_indices.shape[0]):
 				self.resize_datasets()
-				self.log("resize time: " + str(time.time() - t0))
+				#self.log("resize time: " + str(time.time() - t0))
 
-			t0 = time.time()
+			#t0 = time.time()
 			indices = self.hash_indices.value
 			L["value"] = state_key_idx
 			indices[state_key_idx] = np.string_(state_key)
 			self.hash_indices[:] = indices
-			self.log("write time: " + str(time.time() - t0))
+			#self.log("write time: " + str(time.time() - t0))
 			t0 = time.time()
 
 			self.next_index += 1
@@ -134,7 +134,7 @@ class AI():
 		else:
 			state_key_idx = L["value"]
 
-		self.log("get_index time: " + str(time.time() - tx) + "\n")
+		#self.log("get_index time: " + str(time.time() - tx) + "\n")
 
 		return new, state_key_idx
 
