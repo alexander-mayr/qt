@@ -380,7 +380,6 @@ class TetrisApp(object):
 
 			#if not self.paused:
 
-			ai_agent.check_dataset_size()
 			state = self.get_state()
 			action, reward = ai_agent.get_action(state)
 

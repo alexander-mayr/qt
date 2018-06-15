@@ -10,6 +10,7 @@ import h5py
 CHUNKS = 200
 
 from collections import defaultdict
+def tree(): return defaultdict(tree)
 
 class AI():
 	def __init__(self, db = 0, name = None, num_actions = 5):
@@ -25,10 +26,15 @@ class AI():
 			self.file.create_dataset("experience_counts", (CHUNKS,), compression = "gzip", maxshape = (1000 * CHUNKS, ))
 			self.file.create_dataset("stats", (1,))
 
+			self.next_index = 0
+		else:
+			self.next_index = np.where(self.hash_indices.value == b"")[0][0]
+
 		self.q_matrix = self.file["q_matrix"]
 		self.hash_indices = self.file["hash_indices"]
 		self.experience_counts = self.file["experience_counts"]
 		self.games_played = self.file["stats"][0]
+		self.T = tree()
 
 	def save_file(self):
 		self.file["stats"].write_direct(np.array([self.games_played]))
@@ -47,15 +53,17 @@ class AI():
 
 	def get_state_actions(self, state):
 		state_key = self.get_state_key(state)
-		state_key_idx = self.get_index(state)
+		new, state_key_idx = self.get_index(state)
 
-		actions = self.q_matrix[state_key_idx]
-
-		# if(len(state_key_idx) > 0):
-		# 	actions = self.q_matrix[state_key_idx]
-		# else:
-		# 	actions = self.initial_actions()
-		# 	self.set_state_actions(state, actions)
+		if(new):
+			actions = self.initial_actions()
+			self.set_state_actions(state, actions)
+		else:
+			try:
+				actions = self.q_matrix[state_key_idx]
+			except Exception as e:
+				print(state_key_idx)
+				print(new)
 
 		return actions
 
@@ -66,15 +74,9 @@ class AI():
 		self.q_matrix.resize((p, self.num_actions))
 		self.experience_counts.resize((p,))
 
-	def check_dataset_size(self):
-		left = len(np.where(self.hash_indices.value == b"")[0])
-
-		if(left <= 10):
-			self.resize_datasets()
-
 	def set_state_actions(self, state, value):
 		state_key = self.get_state_key(state)
-		state_key_idx = self.get_index(state) # np.where(self.hash_indices.value == str.encode(state_key))[0]
+		n, state_key_idx = self.get_index(state)
 		X = self.q_matrix.value
 		X[state_key_idx] = value
 		self.q_matrix.write_direct(X)
@@ -102,23 +104,40 @@ class AI():
 	def get_index(self, state):
 		state_key = self.get_state_key(state)
 		indices = self.hash_indices.value
-		state_key_idx = np.where(indices == np.string_(state_key))[0]
 
-		if(len(state_key_idx) == 0):
-			state_key_idx = np.where(indices == b"")[0]
-			indices[state_key_idx[0]] = np.string_(state_key)
+		new = False
+		L = self.T
+
+		for n in state_key:
+			L = L[n]
+
+		if("value" not in L.keys()):
+			state_key_idx = -1
+		else:
+			state_key_idx = L["value"]
+
+		if(state_key_idx == -1):
+			if(self.next_index >= self.hash_indices.shape[0]):
+				self.resize_datasets()
+				indices = self.hash_indices.value
+
+			indices[self.next_index] = np.string_(state_key)
 			self.hash_indices.write_direct(indices)
+			self.next_index += 1
+			new = True
+		else:
+			state_key_idx = state_key_idx[0]
 
-		return state_key_idx[0]
+		return new, state_key_idx
 
 	def register_experience(self, state):
-		state_key_idx = self.get_index(state)
+		n, state_key_idx = self.get_index(state)
 		X = self.experience_counts.value
 		X[state_key_idx] = X[state_key_idx] + 1
 		self.experience_counts.write_direct(X)
 
 	def is_registered(self, state):
-		state_key_idx = self.get_index(state)
+		n, state_key_idx = self.get_index(state)
 		return self.experience_counts[state_key_idx] > 0
 
 	def get_state_key(self, state):
