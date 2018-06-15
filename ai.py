@@ -8,7 +8,7 @@ import json
 import h5py
 import time
 
-CHUNKS = 10000
+CHUNKS = 1000
 
 from collections import defaultdict
 def tree(): return defaultdict(tree)
@@ -78,7 +78,7 @@ class AI():
 		n, state_key_idx = self.get_index(state)
 		X = self.q_matrix.value
 		X[state_key_idx] = value
-		self.q_matrix.write_direct(X)
+		self.q_matrix[:] = X
 
 	def get_action(self, state):
 		actions = self.get_state_actions(state)
