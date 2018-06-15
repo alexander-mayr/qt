@@ -76,12 +76,12 @@ class AI():
 		self.experience_counts.resize((p,))
 
 	def set_state_actions(self, state, value):
-		t0 = time.time()
+		#t0 = time.time()
 
 		n, state_key_idx = self.get_index(state)
 		self.q_matrix[state_key_idx] = value
 
-		self.log("set actions time: " + str(time.time() - t0))
+		#self.log("set actions time: " + str(time.time() - t0))
 
 	def get_action(self, state):
 		actions = self.get_state_actions(state)
@@ -104,13 +104,13 @@ class AI():
 		return [np.random.randint(10) for i in range(self.num_actions)]
 
 	def get_index(self, state):
-		t0 = time.time()
-		tx = t0
+		#t0 = time.time()
+		#tx = t0
 
 		state_key = self.get_state_key(state)
 		new = False
 
-		self.log("fetch node time: " + str(time.time() - t0))
+		#self.log("fetch node time: " + str(time.time() - t0))
 		
 		state_key_idx = self.T[state_key]
 
@@ -118,19 +118,19 @@ class AI():
 			state_key_idx = self.next_index
 
 			if(state_key_idx >= self.hash_indices.shape[0]):
-				t0 = time.time()
+				#t0 = time.time()
 				self.resize_datasets()
-				self.log("resize time: " + str(time.time() - t0))
+				#self.log("resize time: " + str(time.time() - t0))
 
 			self.T[state_key] = state_key_idx
 			self.hash_indices[state_key_idx] = np.string_(state_key)
-			self.log("write time: " + str(time.time() - t0))
-			t0 = time.time()
+			#self.log("write time: " + str(time.time() - t0))
+			#t0 = time.time()
 
 			self.next_index += 1
 			new = True
 
-		self.log("get_index time: " + str(time.time() - tx))
+		#self.log("get_index time: " + str(time.time() - tx))
 
 		return new, state_key_idx
 
