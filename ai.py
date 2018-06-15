@@ -51,7 +51,10 @@ class AI():
 	def run(self, app, window):
 		score, state, board_value = app.run(self, window)
 		self.games_played = self.games_played + 1
-		self.save_file()
+		
+		if(self.games_played % 100):
+			self.log("save to file")
+			self.save_file()
 
 	def get_state_actions(self, state):
 		state_key = self.get_state_key(state)
