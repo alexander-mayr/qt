@@ -19,10 +19,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 		matrix = file["q_matrix"][:]
 
 		print("setting labels")
-		# labels = [l[:20] for l in file["hash_indices"]]
+		labels = [l[:20] for l in file["hash_indices"]]
 
 		print("generating dataframe")
-		df = pd.DataFrame(matrix, index = file["hash_indices"], columns = [i for i in range(matrix.shape[1])])
+		df = pd.DataFrame(matrix, index = labels, columns = [i for i in range(matrix.shape[1])])
 		# df.add(file["hash_indices"])
 		self.wfile.write(df.to_html().encode())
 		file.close()
