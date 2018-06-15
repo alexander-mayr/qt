@@ -8,7 +8,7 @@ import json
 import h5py
 import time
 
-CHUNKS = 100000
+CHUNKS = 10000
 
 from collections import defaultdict
 
