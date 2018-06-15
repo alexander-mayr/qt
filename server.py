@@ -15,7 +15,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 		self.end_headers()
 
 		file = h5py.File("something.hdf5")
-		matrix = file["q_matrix"][:]
+		matrix = file["q_matrix"]
 		
 		labels = [l[:20] for l in file["hash_indices"]]
 		
