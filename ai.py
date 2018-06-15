@@ -78,11 +78,8 @@ class AI():
 	def set_state_actions(self, state, value):
 		t0 = time.time()
 
-		state_key = self.get_state_key(state)
 		n, state_key_idx = self.get_index(state)
-		X = self.q_matrix.value
-		X[state_key_idx] = value
-		self.q_matrix[:] = X
+		self.q_matrix[state_key_idx] = value
 
 		self.log("set actions time: " + str(time.time() - t0))
 
