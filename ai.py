@@ -61,11 +61,7 @@ class AI():
 			actions = self.initial_actions()
 			self.set_state_actions(state, actions)
 		else:
-			try:
-				actions = self.q_matrix[state_key_idx]
-			except Exception as e:
-				print(state_key_idx)
-				print(new)
+			actions = self.q_matrix[state_key_idx]
 
 		return actions
 
@@ -124,14 +120,11 @@ class AI():
 			if(state_key_idx >= self.hash_indices.shape[0]):
 				self.resize_datasets()
 				self.log("resize time: " + str(time.time() - t0))
-				t0 = time.time()
 
-			
+			t0 = time.time()
 			indices = self.hash_indices.value
-
 			L["value"] = state_key_idx
 			indices[state_key_idx] = np.string_(state_key)
-			# self.hash_indices.write_direct(indices)
 			self.hash_indices[:] = indices
 			self.log("write time: " + str(time.time() - t0))
 			t0 = time.time()
