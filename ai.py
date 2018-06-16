@@ -73,7 +73,7 @@ class AI():
 		p = self.hash_indices.shape[0] + CHUNKS
 		self.hash_indices.resize((p,))
 
-		if(p >= 2000):
+		if(p >= 10000):
 			raise Exception("stop")
 
 		self.q_matrix.resize((p, self.num_actions))
